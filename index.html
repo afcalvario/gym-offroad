@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Gym Offroad — Mi Rutina</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --accent:#f0883e;--accent2:#79c0ff;--text:#e6edf3;--muted:#8b949e;
+  --green:#3fb950;--pink:#f778ba;--red:#f85149;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:84px}
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-title span{color:var(--accent)}
+.streak-badge{background:#21262d;border:1px solid var(--border);color:var(--accent2);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+/* TABS */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:60}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.nav-ico{font-size:20px;opacity:.45;font-style:normal}
+.nav-lbl{font-size:10px;color:var(--muted)}
+.nav-item.active .nav-ico{opacity:1}
+.nav-item.active .nav-lbl{color:var(--accent);font-weight:700}
+/* WEEK STRIP */
+.week-strip{display:flex;gap:6px;padding:14px 16px 10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.week-strip::-webkit-scrollbar{display:none}
+.day-btn{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 13px;cursor:pointer;text-align:center;min-width:60px;-webkit-user-select:none;user-select:none}
+.day-btn.active{background:var(--accent);border-color:var(--accent)}
+.day-btn .de{font-size:15px}
+.day-btn .dl{font-size:12px;font-weight:700;margin-top:2px}
+.day-btn.active .dl{color:#1a0800}
+.day-btn .done-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin:4px auto 0}
+/* DAY HEADER */
+.day-header{margin:4px 16px 12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.dh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.dh-title{font-size:18px;font-weight:700}
+.dh-focus{font-size:11px;color:var(--accent);font-weight:600;background:rgba(240,136,62,.12);padding:4px 10px;border-radius:8px}
+.dh-meta{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.moto-card{background:rgba(240,136,62,.06);border:1px solid rgba(240,136,62,.2);border-radius:14px;padding:13px 16px;margin:0 16px 12px}
+.moto-title{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:5px}
+.moto-text{font-size:12px;color:var(--muted);line-height:1.55}
+.phase-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:1px;padding:2px 16px 8px;text-transform:uppercase}
+.phase-label.pk{color:var(--pink)}
+/* EXERCISE CARDS */
+.exercise-list{display:flex;flex-direction:column;gap:8px;padding:0 16px}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.ex-card.open{border-color:var(--accent)}
+.ex-card.glute{border-left:3px solid var(--pink)}
+.ex-card.glute.open{border-color:var(--pink)}
+.ex-head{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer}
+.ex-num{width:30px;height:30px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0}
+.ex-num.g{color:var(--pink)}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:600;line-height:1.3}
+.ex-sets{font-size:12px;color:var(--muted);margin-top:3px}
+.ex-muscle{font-size:10px;font-weight:600;color:var(--accent2);background:rgba(121,192,255,.1);padding:2px 8px;border-radius:6px;display:inline-block;margin-top:4px}
+.ex-muscle.g{color:var(--pink);background:rgba(247,120,186,.1)}
+.ex-arrow{color:var(--muted);font-size:17px;transition:transform .25s;flex-shrink:0;font-style:normal}
+.ex-card.open .ex-arrow{transform:rotate(180deg)}
+.ex-body{display:none;border-top:1px solid var(--border);padding:14px}
+.ex-card.open .ex-body{display:block}
+.ex-img{width:100%;height:165px;object-fit:cover;border-radius:10px;background:var(--surface2);display:block;margin-bottom:12px}
+.ex-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:12px}
+.ex-tip{border-radius:8px;padding:11px 13px;font-size:12px;line-height:1.55;margin-bottom:12px}
+.ex-tip.gr{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);color:var(--green)}
+.ex-tip.pk{background:rgba(247,120,186,.08);border:1px solid rgba(247,120,186,.2);color:var(--pink)}
+.yt-btn{display:flex;align-items:center;justify-content:center;gap:9px;background:#1a0d00;border:1px solid var(--accent);color:var(--accent);border-radius:10px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;width:100%;margin-bottom:14px}
+.yt-ic{color:#ff4444;font-size:16px}
+/* WEIGHT LOG */
+.log-section{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.log-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.last-session{font-size:11px;color:var(--accent2);margin-bottom:10px;line-height:1.5}
+.last-session b{color:var(--text)}
+.serie-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.serie-lbl{font-size:11px;font-weight:700;color:var(--muted);width:48px;flex-shrink:0}
+.serie-row input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:8px 10px;text-align:center;-moz-appearance:textfield}
+.serie-row input::-webkit-outer-spin-button,.serie-row input::-webkit-inner-spin-button{-webkit-appearance:none}
+.serie-row input:focus{outline:none;border-color:var(--accent)}
+.unit-lbl{font-size:11px;color:var(--muted);width:24px;flex-shrink:0}
+.save-btn{width:100%;background:var(--accent);border:none;color:#1a0800;font-size:13px;font-weight:700;border-radius:10px;padding:11px;cursor:pointer;margin-top:6px}
+.save-btn.saved{background:var(--green);color:#04140a}
+/* CARDIO CARD */
+.cardio-card{margin:0 16px;background:rgba(121,192,255,.06);border:1px solid rgba(121,192,255,.25);border-radius:14px;padding:14px 16px}
+.cardio-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:5px}
+.cardio-text{font-size:12px;color:var(--muted);line-height:1.6}
+/* FINISH DAY */
+.finish-btn{display:block;margin:16px;width:calc(100% - 32px);background:var(--green);border:none;color:#04140a;font-size:14px;font-weight:700;border-radius:12px;padding:14px;cursor:pointer}
+.finish-btn.done{background:var(--surface);border:1px solid var(--green);color:var(--green)}
+/* ATTENDANCE */
+.att-month{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px}
+.att-month-name{font-size:16px;font-weight:700;text-transform:capitalize}
+.att-nav{background:var(--surface);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:8px 16px 16px}
+.cal-dow{text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:4px 0}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:9px;color:var(--muted);background:var(--surface);border:1px solid transparent}
+.cal-cell.empty{background:transparent}
+.cal-cell.gym{background:rgba(63,185,80,.18);border-color:var(--green);color:var(--green);font-weight:700}
+.cal-cell.today{border-color:var(--accent);color:var(--accent);font-weight:700}
+.cal-cell.gym.today{color:var(--green)}
+.stats-row{display:flex;gap:10px;padding:0 16px 16px}
+.stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.stat-num{font-size:24px;font-weight:800;color:var(--accent)}
+.stat-num.gr{color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4}
+/* PROGRESS */
+.prog-ex-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin:0 16px 8px}
+.prog-ex-name{font-size:13px;font-weight:700;margin-bottom:8px}
+.prog-history{font-size:11px;color:var(--muted);line-height:1.8}
+.prog-history b{color:var(--accent2)}
+.prog-delta{font-size:11px;font-weight:700;margin-left:6px}
+.prog-delta.up{color:var(--green)}
+.prog-delta.same{color:var(--muted)}
+.empty-state{text-align:center;padding:50px 30px;color:var(--muted);font-size:13px;line-height:1.7}
+.empty-ico{font-size:42px;margin-bottom:12px;font-style:normal;display:block}
+.section-intro{font-size:12px;color:var(--muted);line-height:1.6;padding:6px 20px 14px}
+.spacer{height:12px}
+.guide-card{margin:0 16px 10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.guide-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.guide-text{font-size:12px;color:var(--muted);line-height:1.65}
+/* BACKUP */
+.backup-card{margin:0 16px 12px;background:rgba(121,192,255,.06);border:1px solid rgba(121,192,255,.3);border-radius:14px;padding:16px}
+.backup-title{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+.backup-text{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.backup-btns{display:flex;gap:8px}
+.bk-btn{flex:1;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer}
+.bk-btn.exp{background:var(--accent2);color:#06121f}
+.bk-btn.imp{background:var(--surface);border:1px solid var(--accent2);color:var(--accent2)}
+.backup-status{font-size:11px;margin-top:10px;line-height:1.5;display:none}
+.backup-status.ok{display:block;color:var(--green)}
+.backup-status.err{display:block;color:var(--red)}
+.backup-meta{font-size:11px;color:var(--muted);margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title">Gym <span>Offroad</span></div>
+    <div class="streak-badge" id="streak-badge">💪 0 días este mes</div>
+  </div>
+  <div id="view"></div>
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="rutina" onclick="setTab('rutina')"><i class="nav-ico">🏋️</i><span class="nav-lbl">Rutina</span></div>
+    <div class="nav-item" data-tab="asistencia" onclick="setTab('asistencia')"><i class="nav-ico">📅</i><span class="nav-lbl">Asistencia</span></div>
+    <div class="nav-item" data-tab="progreso" onclick="setTab('progreso')"><i class="nav-ico">📈</i><span class="nav-lbl">Progreso</span></div>
+    <div class="nav-item" data-tab="guia" onclick="setTab('guia')"><i class="nav-ico">📖</i><span class="nav-lbl">Guía</span></div>
+  </div>
+</div>
+
+<script>
+/* ============ DATOS DE LA RUTINA ============
+   Split diseñado para novato de 42 años, 5 días, 90 min.
+   Volumen semanal: 8-12 series por grupo muscular.
+   Glúteos: ~12 series/semana (énfasis). 48h+ entre grupos.
+*/
+const IMGS = {
+  cardio:"https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=75",
+  maquina:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=75",
+  mancuerna:"https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=75",
+  polea:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=600&q=75",
+  pierna:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=75",
+  funcional:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&q=75",
+  estiramiento:"https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=75",
+  general:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&q=75",
+  femoral:"https://images.unsplash.com/photo-1530822847156-5df684ec5933?w=600&q=75"
+};
+
+const dias = [
+{
+  id:"lun", nombre:"Lunes", emoji:"💪", foco:"Empuje: Pecho + Hombro + Tríceps",
+  tiempo:"90 min",
+  moto:"Pecho, hombros y tríceps fuertes absorben las vibraciones del manubrio y te dan control en frenadas fuertes y terreno rugoso.",
+  fases:[
+    {label:"Calentamiento — 10 min", g:false, ej:[
+      {id:"lun_cal1", n:"Caminata en cinta + círculos de brazos", s:"5 min cinta · 2×15 círculos", reps:0, series:0, m:"Activación general", log:false,
+       d:"Camina 5 minutos a paso moderado (5–6 km/h) con inclinación ligera. Después, de pie, haz círculos grandes de brazos hacia adelante y atrás, 15 en cada dirección, 2 veces.",
+       t:"A los 42 años el calentamiento no es opcional: prepara articulaciones y tendones que tardan más en entrar en calor que a los 20.",
+       img:IMGS.cardio, yt:"calentamiento hombros brazos antes de entrenar pecho"}
+    ]},
+    {label:"Trabajo principal — 70 min", g:false, ej:[
+      {id:"lun_1", n:"Press de pecho en máquina", s:"4 series × 12 reps", reps:12, series:4, m:"Pecho", log:true,
+       d:"Ajusta el asiento para que los agarres queden a la altura del pecho medio. Empuja hacia adelante en 2 segundos, regresa en 3 segundos. No bloquees los codos al final.",
+       t:"Tu serie debe terminar sintiendo que podrías hacer solo 2 reps más (cerca del fallo, no al fallo). Si terminas las 12 con facilidad, sube peso la próxima sesión.",
+       img:IMGS.maquina, yt:"press pecho maquina tecnica correcta principiante"},
+      {id:"lun_2", n:"Press inclinado con mancuernas", s:"3 series × 12 reps", reps:12, series:3, m:"Pecho superior", log:true,
+       d:"Banca inclinada a 30–45°. Una mancuerna en cada mano a la altura del pecho. Empuja hacia arriba juntando ligeramente las mancuernas al final. Baja controlado hasta sentir estiramiento.",
+       t:"El pecho superior es el que más mejora la imagen corporal del torso. Baja las mancuernas hasta donde tu hombro lo permita sin dolor.",
+       img:IMGS.mancuerna, yt:"press inclinado mancuernas tecnica principiante"},
+      {id:"lun_3", n:"Press de hombros en máquina", s:"3 series × 12 reps", reps:12, series:3, m:"Hombros (deltoides)", log:true,
+       d:"Siéntate con la espalda bien apoyada. Agarres a la altura de las orejas. Empuja hacia arriba sin bloquear codos. Baja lento hasta la altura inicial.",
+       t:"La espalda nunca se arquea. Si necesitas arquearte para subir el peso, es demasiado peso.",
+       img:IMGS.maquina, yt:"press hombros maquina tecnica correcta principiante"},
+      {id:"lun_4", n:"Elevaciones laterales con mancuernas", s:"3 series × 15 reps", reps:15, series:3, m:"Hombro lateral", log:true,
+       d:"De pie, mancuernas ligeras a los costados. Eleva los brazos hacia los lados hasta la altura de los hombros con los codos ligeramente doblados. Baja en 3 segundos.",
+       t:"Peso ligero (3–6 kg). Este ejercicio da la anchura visual de hombros. La técnica importa más que el peso aquí.",
+       img:IMGS.mancuerna, yt:"elevaciones laterales tecnica correcta hombro"},
+      {id:"lun_5", n:"Extensión de tríceps en polea alta", s:"3 series × 12 reps", reps:12, series:3, m:"Tríceps", log:true,
+       d:"Frente a la polea alta con cuerda o barra. Codos pegados al torso, fijos. Extiende los brazos hacia abajo por completo, aprieta 1 segundo, sube controlado.",
+       t:"El tríceps es 2/3 del volumen del brazo. Si quieres brazos más grandes, el tríceps importa más que el bíceps.",
+       img:IMGS.polea, yt:"extension triceps polea cuerda tecnica principiante"},
+      {id:"lun_6", n:"Fondos en banco (tríceps)", s:"3 series × 10-12 reps", reps:12, series:3, m:"Tríceps + pecho inferior", log:true,
+       d:"Siéntate al borde de un banco, manos al lado de las caderas. Desliza el cuerpo hacia adelante y baja doblando los codos hasta 90°. Empuja para subir. Piernas estiradas = más difícil; dobladas = más fácil.",
+       t:"Si sientes molestia en el hombro, reduce el rango de bajada. Registra cuántas reps logras con tu peso corporal.",
+       img:IMGS.general, yt:"fondos banco triceps tecnica correcta principiante"}
+    ]},
+    {label:"Cardio estratégico — 10 min", g:false, ej:[
+      {id:"lun_car", n:"Cinta o elíptica — zona moderada", s:"10 min · puedes hablar sin ahogarte", reps:0, series:0, m:"Cardio post-pesas", log:false,
+       d:"Al final de la sesión, 10 minutos de cardio a intensidad moderada (60-70% de tu frecuencia máxima ≈ 125-130 pulsaciones a tu edad). Caminar rápido con inclinación o elíptica suave.",
+       t:"El cardio va AL FINAL para no robar energía a las pesas. A intensidad moderada mejora tu resistencia para el offroad sin frenar la ganancia muscular.",
+       img:IMGS.cardio, yt:"cardio moderado despues de pesas cuanto tiempo"}
+    ]}
+  ]
+},
+{
+  id:"mar", nombre:"Martes", emoji:"🦵", foco:"Pierna A + Glúteo (cuádriceps dominante)",
+  tiempo:"90 min",
+  moto:"Cuádriceps y glúteos fuertes son tu suspensión humana: sostienen tu cuerpo parado en los estribos y absorben cada impacto del terreno.",
+  fases:[
+    {label:"Calentamiento — 10 min", g:false, ej:[
+      {id:"mar_cal", n:"Bicicleta + sentadillas sin peso", s:"6 min bici · 2×10 sentadillas", reps:0, series:0, m:"Activación pierna", log:false,
+       d:"Pedalea 6 minutos a resistencia baja. Después, 2 series de 10 sentadillas sin peso, lentas y profundas, para activar el patrón de movimiento.",
+       t:"Las sentadillas sin peso le 'enseñan' a tu sistema nervioso el movimiento antes de cargarlo. Imprescindible como novato.",
+       img:IMGS.cardio, yt:"calentamiento piernas antes de entrenar gym"}
+    ]},
+    {label:"Trabajo principal — 70 min", g:false, ej:[
+      {id:"mar_1", n:"Prensa de piernas (leg press)", s:"4 series × 12 reps", reps:12, series:4, m:"Cuádriceps + glúteo", log:true,
+       d:"Pies a la anchura de hombros en la plataforma. Baja hasta que las rodillas formen 90° (o un poco más si tu cadera lo permite sin despegar la espalda baja). Empuja sin bloquear rodillas.",
+       t:"Es el ejercicio más seguro para cargar fuerte las piernas como novato. Aquí es donde más rápido vas a progresar en peso: registra cada sesión.",
+       img:IMGS.pierna, yt:"prensa piernas leg press tecnica correcta principiante"},
+      {id:"mar_2", n:"Goblet squat (sentadilla con mancuerna)", s:"3 series × 12 reps", reps:12, series:3, m:"Cuádriceps + glúteo + core", log:true,
+       d:"Sostén una mancuerna verticalmente contra el pecho con ambas manos. Pies un poco más abiertos que los hombros, puntas ligeramente hacia afuera. Baja profundo, más allá de 90° si puedes. Sube empujando con los talones.",
+       t:"Bajar profundo activa el glúteo completo. La mancuerna al frente te obliga a mantener el torso erguido: es la sentadilla más segura para aprender.",
+       img:IMGS.funcional, yt:"goblet squat tecnica correcta principiante profunda"},
+      {id:"mar_3", n:"Extensiones de cuádriceps en máquina", s:"3 series × 15 reps", reps:15, series:3, m:"Cuádriceps", log:true,
+       d:"Tobillos bajo el rodillo. Extiende las piernas por completo, sostén 1 segundo arriba apretando el muslo, baja en 3 segundos.",
+       t:"La bajada lenta es donde está la mitad del estímulo. Cuádriceps fuertes protegen tus rodillas en los saltos y caídas del offroad.",
+       img:IMGS.polea, yt:"extensiones cuadriceps maquina tecnica correcta"},
+      {id:"mar_4", n:"Hip thrust con barra o mancuerna", s:"4 series × 12 reps", reps:12, series:4, m:"GLÚTEO MAYOR", log:true, glute:true,
+       d:"Espalda alta apoyada en una banca, barra o mancuerna sobre las caderas (usa una toalla o protector). Pies firmes a anchura de hombros. Empuja la cadera hacia arriba hasta alinear rodillas-cadera-hombros. Aprieta el glúteo 1-2 segundos arriba. Baja controlado.",
+       t:"EL ejercicio #1 para glúteos más grandes y fuertes según la evidencia. La barbilla va al pecho, la cadera empuja al techo. Progresarás rápido en peso: registra siempre.",
+       img:IMGS.pierna, yt:"hip thrust tecnica correcta principiante barra"},
+      {id:"mar_5", n:"Elevación de talones (pantorrillas)", s:"4 series × 18 reps", reps:18, series:4, m:"Pantorrillas", log:true,
+       d:"En la máquina de pantorrillas o de pie en un escalón. Sube en puntas lo más alto posible, sostén 1 segundo, baja lento hasta sentir estiramiento abajo.",
+       t:"Las pantorrillas controlan la punta del pie sobre el freno y el cambio en la moto. Necesitan más repeticiones que otros músculos: 15-20 mínimo.",
+       img:IMGS.pierna, yt:"elevacion talones pantorrillas gym tecnica"}
+    ]},
+    {label:"Cardio estratégico — 10 min", g:false, ej:[
+      {id:"mar_car", n:"Bicicleta suave — recuperación activa", s:"10 min · resistencia baja", reps:0, series:0, m:"Cardio post-pesas", log:false,
+       d:"Después del trabajo de pierna, 10 minutos de bicicleta a resistencia baja ayudan a eliminar el ácido láctico y reducen el dolor del día siguiente.",
+       t:"En día de pierna el cardio es suave: tus piernas ya trabajaron lo suficiente.",
+       img:IMGS.cardio, yt:"recuperacion activa bicicleta despues pierna"}
+    ]}
+  ]
+},
+{
+  id:"mie", nombre:"Miérc.", emoji:"🔙", foco:"Jale: Espalda + Bíceps",
+  tiempo:"90 min",
+  moto:"La espalda es tu soporte estructural en horas de manejo. Bíceps y antebrazos fuertes = agarre firme del manubrio en saltos, baches y frenadas.",
+  fases:[
+    {label:"Calentamiento — 10 min", g:false, ej:[
+      {id:"mie_cal", n:"Remo suave + rotaciones de hombro", s:"5 min remo ligero · 2×15 rotaciones", reps:0, series:0, m:"Activación espalda", log:false,
+       d:"Remo en máquina con peso mínimo durante 5 minutos para activar la espalda. Después rotaciones de hombro: 15 hacia adelante, 15 hacia atrás, 2 veces.",
+       t:"Siente cómo se activa el área entre los omóplatos: esos son los músculos protagonistas de hoy.",
+       img:IMGS.maquina, yt:"calentamiento espalda antes de entrenar gym"}
+    ]},
+    {label:"Trabajo principal — 70 min", g:false, ej:[
+      {id:"mie_1", n:"Jalón al pecho en polea (lat pulldown)", s:"4 series × 12 reps", reps:12, series:4, m:"Dorsal ancho", log:true,
+       d:"Agarre un poco más ancho que los hombros. Jala la barra hacia la parte alta del pecho sacando el pecho hacia adelante y llevando los codos hacia abajo y atrás. Sube en 3 segundos.",
+       t:"Nunca detrás de la cabeza. Imagina que jalas con los codos, no con las manos: así trabaja la espalda y no el bíceps.",
+       img:IMGS.maquina, yt:"jalon al pecho polea tecnica correcta principiante"},
+      {id:"mie_2", n:"Remo sentado en polea (agarre cerrado)", s:"4 series × 12 reps", reps:12, series:4, m:"Espalda media + dorsales", log:true,
+       d:"Sentado con las rodillas semiflexionadas, espalda recta. Jala el agarre hacia el abdomen, juntando los omóplatos al final. Regresa controlado sin encorvar la espalda.",
+       t:"Este movimiento replica exactamente jalar el manubrio hacia ti al frenar fuerte en offroad. Es tu ejercicio más funcional para moto del día.",
+       img:IMGS.polea, yt:"remo sentado polea agarre cerrado tecnica correcta"},
+      {id:"mie_3", n:"Remo con mancuerna a un brazo", s:"3 series × 12 reps c/brazo", reps:12, series:3, m:"Dorsal + espalda media", log:true,
+       d:"Rodilla y mano del mismo lado apoyadas en una banca, espalda horizontal. Jala la mancuerna hacia la cadera llevando el codo al techo. Baja con control total.",
+       t:"Trabajar un brazo a la vez corrige desbalances de fuerza entre ambos lados, algo importante para el control fino de la moto.",
+       img:IMGS.mancuerna, yt:"remo mancuerna un brazo tecnica correcta principiante"},
+      {id:"mie_4", n:"Curl de bíceps con mancuernas", s:"3 series × 12 reps", reps:12, series:3, m:"Bíceps", log:true,
+       d:"De pie, palmas hacia adelante. Sube las mancuernas doblando solo los codos, que quedan fijos y pegados al torso. Baja en 3 segundos completos.",
+       t:"La bajada lenta de 3 segundos genera más crecimiento que subir más peso con rebote. No balancees el cuerpo.",
+       img:IMGS.mancuerna, yt:"curl biceps mancuernas tecnica correcta principiante"},
+      {id:"mie_5", n:"Curl martillo (agarre neutro)", s:"3 series × 12 reps", reps:12, series:3, m:"Bíceps + antebrazo", log:true,
+       d:"Igual que el curl normal pero con las palmas enfrentadas entre sí (como sostener un martillo). Sube y baja controlado.",
+       t:"Este agarre fortalece el antebrazo y la muñeca: exactamente la musculatura que evita la fatiga de manos ('arm pump') en rutas largas de offroad.",
+       img:IMGS.mancuerna, yt:"curl martillo mancuernas tecnica antebrazo"},
+      {id:"mie_6", n:"Hiperextensiones lumbares", s:"3 series × 15 reps", reps:15, series:3, m:"Espalda baja", log:true,
+       d:"En el banco de hiperextensiones, muslos apoyados, pies fijos. Baja el torso controlado y sube hasta la línea recta del cuerpo, sin pasar de ahí. Cruza los brazos al pecho.",
+       t:"Espalda baja fuerte = cero dolor lumbar después de un día completo en la moto. Cuando 15 reps sean fáciles, abraza un disco al pecho y regístralo.",
+       img:IMGS.cardio, yt:"hiperextensiones lumbares banco tecnica correcta"}
+    ]},
+    {label:"Cardio estratégico — 10 min", g:false, ej:[
+      {id:"mie_car", n:"Elíptica — zona moderada", s:"10 min · ritmo conversacional", reps:0, series:0, m:"Cardio post-pesas", log:false,
+       d:"10 minutos de elíptica a ritmo moderado. La elíptica involucra brazos y piernas sin impacto, ideal después de entrenar espalda.",
+       t:"Mantén un ritmo donde puedas hablar. Más intensidad no es mejor cuando el objetivo es ganar músculo.",
+       img:IMGS.cardio, yt:"eliptica ritmo moderado tecnica"}
+    ]}
+  ]
+},
+{
+  id:"jue", nombre:"Jueves", emoji:"🍑", foco:"Pierna B + GLÚTEO ÉNFASIS (cadera dominante)",
+  tiempo:"90 min",
+  moto:"El día estrella para el offroad y para tus glúteos: la fuerza de cadera es la que te mantiene horas de pie en los estribos sin fatiga.",
+  fases:[
+    {label:"Calentamiento — 10 min", g:false, ej:[
+      {id:"jue_cal", n:"Caminata inclinada + puentes sin peso", s:"5 min cinta · 2×15 puentes", reps:0, series:0, m:"Activación glúteo", log:false,
+       d:"Camina 5 minutos con inclinación 5-8%. Después acuéstate y haz 2 series de 15 puentes de glúteo sin peso, apretando fuerte arriba.",
+       t:"Los puentes sin peso 'despiertan' el glúteo. Mucha gente entrena pierna con el glúteo dormido y por eso no crece.",
+       img:IMGS.cardio, yt:"activacion gluteos antes de entrenar puentes"}
+    ]},
+    {label:"Glúteos y cadena posterior — 70 min", g:true, ej:[
+      {id:"jue_1", n:"Peso muerto rumano con mancuernas", s:"4 series × 12 reps", reps:12, series:4, m:"GLÚTEO + isquiotibiales", log:true, glute:true,
+       d:"De pie con una mancuerna en cada mano frente a los muslos. Con rodillas semiflexionadas y espalda recta, empuja la cadera hacia atrás bajando las mancuernas pegadas a las piernas hasta media espinilla. Siente el estiramiento atrás del muslo. Sube apretando el glúteo.",
+       t:"El movimiento es de cadera, no de rodillas. Es el segundo mejor constructor de glúteo después del hip thrust, y protege tu espalda baja para la moto.",
+       img:IMGS.femoral, yt:"peso muerto rumano mancuernas tecnica correcta principiante"},
+      {id:"jue_2", n:"Hip thrust (segunda sesión semanal)", s:"4 series × 10 reps (más peso que martes)", reps:10, series:4, m:"GLÚTEO MAYOR", log:true, glute:true,
+       d:"Misma técnica que el martes, pero hoy intenta usar un poco más de peso con 10 repeticiones en lugar de 12. Aprieta 2 segundos completos arriba.",
+       t:"Entrenar el glúteo 2 veces por semana con 48h de descanso es la frecuencia óptima para crecimiento. Hoy vas más pesado: consulta tu registro del martes.",
+       img:IMGS.pierna, yt:"hip thrust pesado tecnica progresion"},
+      {id:"jue_3", n:"Curl femoral acostado en máquina", s:"3 series × 12 reps", reps:12, series:3, m:"Isquiotibiales", log:true,
+       d:"Boca abajo, tobillos bajo el rodillo. Lleva los talones hacia los glúteos doblando las rodillas. Baja en 3 segundos.",
+       t:"El femoral equilibra la fuerza del cuádriceps y protege la rodilla: el seguro de vida de tus articulaciones en el offroad.",
+       img:IMGS.femoral, yt:"curl femoral acostado maquina tecnica correcta"},
+      {id:"jue_4", n:"Kickback de glúteo en polea baja", s:"3 series × 15 reps c/pierna", reps:15, series:3, m:"GLÚTEO — contracción", log:true, glute:true,
+       d:"Correa de la polea baja en un tobillo. Apoyado ligeramente en la máquina, lleva la pierna atrás y arriba con rodilla semiflexionada. Aprieta 1 segundo arriba. Movimiento corto y controlado.",
+       t:"Si arqueas la espalda baja para subir más la pierna, estás haciendo trampa. El glúteo trabaja en un rango corto.",
+       img:IMGS.polea, yt:"kickback gluteo polea baja tecnica correcta"},
+      {id:"jue_5", n:"Abducción de cadera en máquina (o con banda)", s:"3 series × 18 reps", reps:18, series:3, m:"GLÚTEO MEDIO", log:true, glute:true,
+       d:"Sentado en la máquina de abducción, abre las piernas contra la resistencia apretando los glúteos laterales. Sostén 1 segundo abierto. Si no hay máquina: banda elástica sobre las rodillas y abre contra ella.",
+       t:"El glúteo medio da la forma redondeada lateral Y estabiliza tu pelvis en los baches laterales de la moto. Doble ganancia.",
+       img:IMGS.maquina, yt:"abduccion cadera maquina gluteo medio tecnica"},
+      {id:"jue_6", n:"Zancadas caminando con mancuernas", s:"3 series × 10 pasos c/pierna", reps:10, series:3, m:"Glúteo + cuádriceps + equilibrio", log:true,
+       d:"Mancuernas a los costados. Da un paso largo, baja la rodilla trasera casi al suelo, empuja con el talón delantero y avanza al siguiente paso. El paso largo enfatiza glúteo; el corto, cuádriceps.",
+       t:"El equilibrio unilateral de las zancadas es el ejercicio más parecido a corregir la moto en terreno irregular. Da pasos largos para el glúteo.",
+       img:IMGS.funcional, yt:"zancadas caminando mancuernas tecnica gluteo"}
+    ]},
+    {label:"Cardio estratégico — 10 min", g:false, ej:[
+      {id:"jue_car", n:"Caminata inclinada suave", s:"10 min · inclinación 5% · paso cómodo", reps:0, series:0, m:"Cardio post-pesas", log:false,
+       d:"Caminar con inclinación al final del día de glúteo mantiene el músculo activo y mejora la recuperación sin impacto.",
+       t:"La caminata inclinada es además un estímulo extra ligero para el glúteo. Cierre perfecto del día.",
+       img:IMGS.cardio, yt:"caminata inclinada beneficios gluteo"}
+    ]}
+  ]
+},
+{
+  id:"vie", nombre:"Viernes", emoji:"🔥", foco:"Core + Funcional Offroad + Hombro accesorio",
+  tiempo:"90 min",
+  moto:"El día 100% diseñado para la moto: core antirrotación, estabilidad y resistencia muscular que replican las demandas reales del enduro.",
+  fases:[
+    {label:"Calentamiento — 10 min", g:false, ej:[
+      {id:"vie_cal", n:"Saltos de tijera + movilidad completa", s:"3×30 seg saltos · movilidad articular", reps:0, series:0, m:"Activación total", log:false,
+       d:"3 rondas de 30 segundos de saltos de tijera. Entre rondas: círculos de cadera, rodillas y tobillos. Hoy se mueve todo el cuerpo.",
+       t:"El viernes el cuerpo acumula fatiga de la semana. Un calentamiento completo evita lesiones tontas de fin de semana.",
+       img:IMGS.general, yt:"calentamiento full body movilidad articular"}
+    ]},
+    {label:"Circuito funcional offroad — 70 min", g:false, ej:[
+      {id:"vie_1", n:"Press Pallof en polea (antirrotación)", s:"3 series × 12 reps c/lado", reps:12, series:3, m:"Core antirrotación", log:true,
+       d:"De pie, perpendicular a la polea a la altura del pecho. Sujeta el agarre con ambas manos pegado al pecho. Extiende los brazos al frente resistiendo que la polea te gire el torso. Sostén 2 segundos, regresa.",
+       t:"El secreto mejor guardado para offroad: cuando la moto patina o un bache te tuerce, el core antirrotación es lo que te mantiene arriba. Ningún abdominal tradicional entrena esto.",
+       img:IMGS.polea, yt:"press pallof polea core antirrotacion tecnica"},
+      {id:"vie_2", n:"Plancha con toques de hombro", s:"3 series × 30-40 seg", reps:0, series:3, m:"Core + estabilidad", log:true,
+       d:"En posición de plancha alta (brazos extendidos), toca tu hombro izquierdo con la mano derecha y alterna, sin que la cadera se balancee. La cadera quieta es la meta.",
+       t:"Esto replica mantener el torso estable mientras los brazos trabajan el manubrir. Registra los segundos que aguantas con buena forma.",
+       img:IMGS.cardio, yt:"plancha toques hombro tecnica core estabilidad"},
+      {id:"vie_3", n:"Sentadilla búlgara (pie trasero elevado)", s:"3 series × 10 reps c/pierna", reps:10, series:3, m:"Pierna unilateral + glúteo", log:true,
+       d:"Pie trasero apoyado en un banco detrás de ti, pie delantero firme. Baja la rodilla trasera hacia el suelo manteniendo el torso erguido. Empuja con el talón delantero. Empieza sin peso; agrega mancuernas cuando domines 10 reps.",
+       t:"El ejercicio unilateral más completo que existe. Equilibrio + fuerza + glúteo en un solo movimiento. Brutal pero transformador para el offroad.",
+       img:IMGS.funcional, yt:"sentadilla bulgara tecnica correcta principiante"},
+      {id:"vie_4", n:"Remo invertido o jalón (espalda ligera)", s:"3 series × 12 reps", reps:12, series:3, m:"Espalda — volumen extra", log:true,
+       d:"En barra baja del rack o en máquina de jalón con peso ligero. Jala tu pecho hacia la barra apretando los omóplatos. Cuerpo en línea recta.",
+       t:"Series extra de espalda con peso ligero completan tu volumen semanal sin interferir con la recuperación del miércoles.",
+       img:IMGS.maquina, yt:"remo invertido barra tecnica principiante"},
+      {id:"vie_5", n:"Elevaciones posteriores (pájaros)", s:"3 series × 15 reps", reps:15, series:3, m:"Hombro posterior", log:true,
+       d:"Inclinado hacia adelante con el torso casi horizontal, mancuernas ligeras colgando. Eleva los brazos hacia los lados como alas, apretando la parte trasera del hombro. Baja lento.",
+       t:"El hombro posterior corrige la postura encorvada (importante a los 42) y estabiliza el hombro en los impactos del manubrio.",
+       img:IMGS.mancuerna, yt:"elevaciones posteriores pajaros hombro tecnica"},
+      {id:"vie_6", n:"Farmer's walk (caminata del granjero)", s:"3 series × 30-40 metros", reps:0, series:3, m:"Agarre + core + trapecio", log:true,
+       d:"Toma la mancuerna más pesada que puedas sostener con seguridad en cada mano. Camina erguido 30-40 metros con pasos controlados. Descansa y repite.",
+       t:"El mejor ejercicio de agarre que existe. Antebrazos de acero = adiós a la fatiga de manos en rutas largas. Registra el peso de las mancuernas.",
+       img:IMGS.mancuerna, yt:"farmers walk caminata granjero tecnica beneficios"}
+    ]},
+    {label:"Cardio + estiramiento final — 10 min", g:false, ej:[
+      {id:"vie_car", n:"5 min cardio suave + 5 min estiramiento total", s:"10 min de cierre semanal", reps:0, series:0, m:"Recuperación", log:false,
+       d:"5 minutos de caminata suave para bajar pulsaciones. Después: estiramiento de glúteo (figura 4), postura del niño para la espalda, y estiramiento de pecho en esquina. 40 segundos cada uno.",
+       t:"Este cierre de 10 minutos define cómo te sentirás el fin de semana, sobre todo si sales a rodar. No lo saltes.",
+       img:IMGS.estiramiento, yt:"estiramiento completo despues de entrenar full body"}
+    ]}
+  ]
+}
+];
+
+/* ============ ESTADO Y PERSISTENCIA ============ */
+const LS_LOGS = "gym_logs_v1";      // { ejId: [ {date, sets:[{w,r}] } ] }
+const LS_ATT  = "gym_att_v1";       // [ "2026-06-12", ... ]
+let logs = {}, att = [];
+try { logs = JSON.parse(localStorage.getItem(LS_LOGS)) || {}; } catch(e){ logs = {}; }
+try { att  = JSON.parse(localStorage.getItem(LS_ATT))  || []; } catch(e){ att = []; }
+function saveLogs(){ try{ localStorage.setItem(LS_LOGS, JSON.stringify(logs)); }catch(e){} }
+function saveAtt(){ try{ localStorage.setItem(LS_ATT, JSON.stringify(att)); }catch(e){} }
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function fmtShort(iso){
+  const [y,m,d] = iso.split("-");
+  const meses = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  return d+" "+meses[parseInt(m)-1];
+}
+
+/* ============ NAVEGACIÓN ============ */
+let tab = "rutina";
+let diaActivo = (()=>{ const d=new Date().getDay(); return (d>=1&&d<=5)?d-1:0; })();
+let abiertos = {};
+let calRef = new Date();
+
+function setTab(t){
+  tab = t;
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active", n.dataset.tab===t));
+  render();
+  window.scrollTo(0,0);
+}
+function setDia(i){ diaActivo=i; abiertos={}; render(); window.scrollTo(0,0); }
+function toggleEx(id){
+  abiertos[id]=!abiertos[id];
+  const c=document.getElementById("card-"+id);
+  if(c) c.classList.toggle("open", !!abiertos[id]);
+}
+
+/* ============ VISTA RUTINA ============ */
+function lastLogHtml(ejId){
+  const hist = logs[ejId];
+  if(!hist || !hist.length) return '<div class="last-session">Primera vez — registra tu peso inicial para empezar la carga progresiva.</div>';
+  const last = hist[hist.length-1];
+  const sets = last.sets.map((s,i)=>`S${i+1}: <b>${s.w||0} kg × ${s.r||0}</b>`).join(" · ");
+  return `<div class="last-session">📌 Última sesión (${fmtShort(last.date)}): ${sets}</div>`;
+}
+
+function logInputsHtml(ex){
+  const hist = logs[ex.id];
+  const last = hist && hist.length ? hist[hist.length-1] : null;
+  let rows = "";
+  for(let i=0;i<ex.series;i++){
+    const lw = last && last.sets[i] ? last.sets[i].w : "";
+    const lr = last && last.sets[i] ? last.sets[i].r : "";
+    rows += `<div class="serie-row">
+      <span class="serie-lbl">Serie ${i+1}</span>
+      <input type="number" inputmode="decimal" placeholder="${lw!==""?lw:"peso"}" id="w_${ex.id}_${i}" onclick="event.stopPropagation()">
+      <span class="unit-lbl">kg</span>
+      <input type="number" inputmode="numeric" placeholder="${lr!==""?lr:ex.reps||"reps"}" id="r_${ex.id}_${i}" onclick="event.stopPropagation()">
+      <span class="unit-lbl">rep</span>
+    </div>`;
+  }
+  return rows;
+}
+
+function saveLog(ejId, nSeries){
+  const sets=[];
+  let any=false;
+  for(let i=0;i<nSeries;i++){
+    const w=document.getElementById(`w_${ejId}_${i}`);
+    const r=document.getElementById(`r_${ejId}_${i}`);
+    const wv=w&&w.value!==""?parseFloat(w.value):null;
+    const rv=r&&r.value!==""?parseInt(r.value):null;
+    // si está vacío, usa placeholder (última sesión) si existe
+    const wFinal = wv!==null?wv:(w&&w.placeholder&&w.placeholder!=="peso"?parseFloat(w.placeholder):0);
+    const rFinal = rv!==null?rv:(r&&r.placeholder&&r.placeholder!=="reps"?parseInt(r.placeholder):0);
+    if(wFinal||rFinal) any=true;
+    sets.push({w:wFinal,r:rFinal});
+  }
+  if(!any){ return; }
+  if(!logs[ejId]) logs[ejId]=[];
+  const t=todayStr();
+  // si ya hay registro hoy, reemplázalo
+  const idx=logs[ejId].findIndex(x=>x.date===t);
+  if(idx>=0) logs[ejId][idx]={date:t,sets};
+  else logs[ejId].push({date:t,sets});
+  saveLogs();
+  const btn=document.getElementById("save_"+ejId);
+  if(btn){ btn.textContent="✓ Guardado"; btn.classList.add("saved"); setTimeout(()=>{btn.textContent="Guardar pesos de hoy";btn.classList.remove("saved");},1800); }
+}
+
+function renderRutina(){
+  const d = dias[diaActivo];
+  const hoy = todayStr();
+  const doneToday = att.includes(hoy);
+  let html = `<div class="week-strip">`;
+  dias.forEach((dd,i)=>{
+    html += `<div class="day-btn${i===diaActivo?' active':''}" onclick="setDia(${i})">
+      <div class="de">${dd.emoji}</div><div class="dl">${dd.nombre}</div>
+    </div>`;
+  });
+  html += `</div>
+  <div class="day-header">
+    <div class="dh-top">
+      <div class="dh-title">${d.nombre}</div>
+      <div class="dh-focus">${d.foco}</div>
+    </div>
+    <div class="dh-meta"><span>⏱ ${d.tiempo}</span><span>🎯 Hipertrofia: cerca del fallo, 2 reps en reserva</span></div>
+  </div>
+  <div class="moto-card">
+    <div class="moto-title">🏍️ Relevancia offroad</div>
+    <div class="moto-text">${d.moto}</div>
+  </div>`;
+
+  let n=1;
+  d.fases.forEach(f=>{
+    html += `<div class="phase-label${f.g?' pk':''}">${f.g?'🍑 ':''}${f.label}</div><div class="exercise-list">`;
+    f.ej.forEach(ex=>{
+      const isG=!!ex.glute;
+      const open=!!abiertos[ex.id];
+      const ytUrl=`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}`;
+      html += `<div class="ex-card${isG?' glute':''}${open?' open':''}" id="card-${ex.id}">
+        <div class="ex-head" onclick="toggleEx('${ex.id}')">
+          <div class="ex-num${isG?' g':''}">${ex.log?n:'•'}</div>
+          <div class="ex-info">
+            <div class="ex-name">${ex.n}</div>
+            <div class="ex-sets">${ex.s}</div>
+            <span class="ex-muscle${isG?' g':''}">${ex.m}</span>
+          </div>
+          <i class="ex-arrow">▾</i>
+        </div>
+        <div class="ex-body">
+          <img class="ex-img" src="${ex.img}" alt="${ex.n}" loading="lazy" onerror="this.style.display='none'">
+          <p class="ex-desc">${ex.d}</p>
+          <div class="ex-tip ${isG?'pk':'gr'}">💡 ${ex.t}</div>
+          <a class="yt-btn" href="${ytUrl}" target="_blank" rel="noopener"><span class="yt-ic">▶</span> Ver técnica en YouTube</a>
+          ${ex.log?`
+          <div class="log-section" onclick="event.stopPropagation()">
+            <div class="log-title">📝 Registro de pesos</div>
+            ${lastLogHtml(ex.id)}
+            ${logInputsHtml(ex)}
+            <button class="save-btn" id="save_${ex.id}" onclick="saveLog('${ex.id}',${ex.series})">Guardar pesos de hoy</button>
+          </div>`:''}
+        </div>
+      </div>`;
+      if(ex.log) n++;
+    });
+    html += `</div><div class="spacer"></div>`;
+  });
+
+  html += `<button class="finish-btn${doneToday?' done':''}" onclick="toggleAttToday()">${doneToday?'✓ Día registrado — ¡bien hecho!':'✅ Marcar día como completado'}</button>`;
+  return html;
+}
+
+function toggleAttToday(){
+  const t=todayStr();
+  const i=att.indexOf(t);
+  if(i>=0) att.splice(i,1); else att.push(t);
+  saveAtt(); render(); updateStreak();
+}
+
+/* ============ VISTA ASISTENCIA ============ */
+function renderAsistencia(){
+  const y=calRef.getFullYear(), m=calRef.getMonth();
+  const meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const first=new Date(y,m,1);
+  const startDow=(first.getDay()+6)%7; // lunes=0
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const hoy=todayStr();
+  const monthPrefix=y+"-"+String(m+1).padStart(2,"0")+"-";
+  const gymThisMonth=att.filter(a=>a.startsWith(monthPrefix)).length;
+  const totalGym=att.length;
+  // racha semanal: días L-V de esta semana
+  const now=new Date(); const dow=(now.getDay()+6)%7;
+  const monday=new Date(now); monday.setDate(now.getDate()-dow);
+  let weekCount=0;
+  for(let i=0;i<5;i++){
+    const dd=new Date(monday); dd.setDate(monday.getDate()+i);
+    const s=dd.getFullYear()+"-"+String(dd.getMonth()+1).padStart(2,"0")+"-"+String(dd.getDate()).padStart(2,"0");
+    if(att.includes(s)) weekCount++;
+  }
+
+  let html=`
+  <div class="section-intro">Marca cada día completado desde la pestaña Rutina. Tu constancia es el predictor #1 de resultados: la meta son 5 días por semana, y 4 también cuenta como una gran semana.</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num gr">${weekCount}/5</div><div class="stat-lbl">Esta semana</div></div>
+    <div class="stat-card"><div class="stat-num">${gymThisMonth}</div><div class="stat-lbl">Este mes</div></div>
+    <div class="stat-card"><div class="stat-num">${totalGym}</div><div class="stat-lbl">Total histórico</div></div>
+  </div>
+  <div class="att-month">
+    <button class="att-nav" onclick="calMove(-1)">‹</button>
+    <div class="att-month-name">${meses[m]} ${y}</div>
+    <button class="att-nav" onclick="calMove(1)">›</button>
+  </div>
+  <div class="cal-grid">`;
+  ["L","M","X","J","V","S","D"].forEach(d=>html+=`<div class="cal-dow">${d}</div>`);
+  for(let i=0;i<startDow;i++) html+=`<div class="cal-cell empty"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const ds=monthPrefix+String(day).padStart(2,"0");
+    const isGym=att.includes(ds);
+    const isToday=ds===hoy;
+    html+=`<div class="cal-cell${isGym?' gym':''}${isToday?' today':''}">${day}</div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+function calMove(d){ calRef=new Date(calRef.getFullYear(),calRef.getMonth()+d,1); render(); }
+
+/* ============ VISTA PROGRESO ============ */
+function renderProgreso(){
+  // recopila ejercicios con registros
+  const allEx=[];
+  dias.forEach(d=>d.fases.forEach(f=>f.ej.forEach(e=>{ if(e.log) allEx.push(e); })));
+  const withLogs=allEx.filter(e=>logs[e.id]&&logs[e.id].length);
+  if(!withLogs.length){
+    return `<div class="empty-state"><i class="empty-ico">📈</i>Aún no hay registros.<br>Ve a la pestaña Rutina, abre un ejercicio y guarda tus pesos de hoy.<br><br><b style="color:var(--accent)">Sin registro no hay carga progresiva real.</b></div>`;
+  }
+  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo y buena técnica, sube el peso 2.5 kg (o el incremento mínimo de la máquina) la siguiente sesión.</div>`;
+  withLogs.forEach(e=>{
+    const hist=logs[e.id];
+    const recent=hist.slice(-4).reverse();
+    let rows="";
+    recent.forEach((h,i)=>{
+      const best=Math.max(...h.sets.map(s=>s.w||0));
+      const setsTxt=h.sets.map(s=>`${s.w||0}×${s.r||0}`).join(" · ");
+      let delta="";
+      if(i<recent.length-1){
+        const prevBest=Math.max(...recent[i+1].sets.map(s=>s.w||0));
+        if(best>prevBest) delta=`<span class="prog-delta up">▲ +${(best-prevBest).toFixed(1)} kg</span>`;
+        else if(best===prevBest) delta=`<span class="prog-delta same">= igual</span>`;
+      }
+      rows+=`<div><b>${fmtShort(h.date)}</b> — ${setsTxt} ${delta}</div>`;
+    });
+    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}</div><div class="prog-history">${rows}</div></div>`;
+  });
+  html+=`<div class="section-intro" style="padding-top:8px">💾 Recuerda respaldar tus registros periódicamente desde la pestaña <b style="color:var(--accent2)">Guía → Respaldo en Google Drive</b>.</div>`;
+  html+=`<div class="spacer"></div>`;
+  return html;
+}
+
+/* ============ VISTA GUÍA ============ */
+function renderGuia(){
+  return `
+  <div class="section-intro">Los principios detrás de tu programa. Léelos una vez por semana las primeras 4 semanas.</div>
+  <div class="backup-card">
+    <div class="backup-title">💾 Respaldo en Google Drive</div>
+    <div class="backup-text">Tus registros viven en este teléfono. <b>Exporta</b> genera un archivo de respaldo que puedes guardar en Google Drive con un toque desde tus descargas (Compartir → Guardar en Drive). <b>Importar</b> restaura un respaldo y lo fusiona con tus datos actuales sin borrar nada.</div>
+    <div class="backup-btns">
+      <button class="bk-btn exp" onclick="exportBackup()">⬇ Exportar respaldo</button>
+      <button class="bk-btn imp" onclick="document.getElementById('bk-file').click()">⬆ Importar</button>
+    </div>
+    <input type="file" id="bk-file" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+    <div class="backup-status" id="bk-status"></div>
+    <div class="backup-meta" id="bk-meta">${lastBackupTxt()}</div>
+  </div>
+  <div class="guide-card"><div class="guide-title">🎯 Volumen semanal (el sweet spot)</div><div class="guide-text">Cada grupo muscular recibe entre 8 y 12 series semanales, el rango óptimo para ganar músculo como novato. Glúteos reciben ~12 series (énfasis solicitado) repartidas entre martes y jueves con 48 horas de descanso entre ambas.</div></div>
+  <div class="guide-card"><div class="guide-title">🔁 Descanso entre grupos musculares</div><div class="guide-text">El split está diseñado para que ningún músculo se trabaje sin al menos 48 horas de recuperación: empuje (lunes) → pierna A (martes) → jale (miércoles) → pierna B (jueves) → core/funcional (viernes). El músculo crece durante el descanso, no durante el entrenamiento.</div></div>
+  <div class="guide-card"><div class="guide-title">📝 Carga progresiva (la clave de todo)</div><div class="guide-text">Registra peso y repeticiones de CADA serie en la app. La regla: cuando completes todas las series con las reps objetivo y técnica limpia, sube 2.5 kg la siguiente sesión. Si no completas las reps, mantén el peso hasta dominarlo. Este simple hábito es la diferencia entre progresar y estancarse.</div></div>
+  <div class="guide-card"><div class="guide-title">💪 Esfuerzo real (cerca del fallo)</div><div class="guide-text">Tus 12 repeticiones deben terminar sintiendo que solo podrías hacer 2 más con buena técnica (RIR 2). Si terminas fresco, el peso es poco. Si tu técnica se rompe antes de la rep 10, es demasiado. El rango útil de hipertrofia va de 6 a 20 reps.</div></div>
+  <div class="guide-card"><div class="guide-title">🏃 Cardio estratégico</div><div class="guide-text">Siempre al final, 10 minutos, intensidad moderada (puedes mantener una conversación). Antes de pesas robaría energía al trabajo muscular, que es tu prioridad absoluta para ganar músculo.</div></div>
+  <div class="guide-card"><div class="guide-title">🏍️ Conexión offroad</div><div class="guide-text">Cada día incluye trabajo directamente transferible a la moto: agarre (curl martillo, farmer's walk), core antirrotación (press Pallof), equilibrio unilateral (búlgaras, zancadas) y resistencia postural (hip thrust, lumbares). En 8-12 semanas notarás menos fatiga de brazos, mejor control de pie en los estribos y recuperación más rápida entre rutas.</div></div>
+  <div class="guide-card"><div class="guide-title">🛌 Los otros 23 horas del día</div><div class="guide-text">Duerme 7-8 horas (el músculo crece dormido). Come ~1.6 g de proteína por kg de peso corporal al día (≈120-130 g para ti): pollo, huevo, atún, frijol, leche. A los 42 años la recuperación pide más atención que a los 25: si un día te sientes destruido, baja la intensidad ese día en lugar de faltar.</div></div>
+  <div class="guide-card"><div class="guide-title">⚠️ Señales de alto</div><div class="guide-text">Dolor articular punzante (no confundir con ardor muscular), mareo o dolor en el pecho = detente ese día. Esta rutina sigue principios sólidos para principiantes, pero no sustituye la evaluación de un profesional. Cuando puedas, una sola sesión con un entrenador para validar tu técnica es la mejor inversión posible.</div></div>
+  <div class="spacer"></div>`;
+}
+
+/* ============ RESPALDO / RESTAURACIÓN ============ */
+const LS_LASTBK = "gym_lastbackup_v1";
+function lastBackupTxt(){
+  const v = localStorage.getItem(LS_LASTBK);
+  return v ? "Último respaldo: "+fmtShort(v.slice(0,10))+" "+v.slice(11,16) : "Aún no has hecho ningún respaldo.";
+}
+function exportBackup(){
+  try{
+    const data = {
+      app:"GymOffroad", version:1,
+      exportado:new Date().toISOString(),
+      registros:logs, asistencia:att
+    };
+    const totalLogs = Object.values(logs).reduce((a,h)=>a+h.length,0);
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const f = todayStr();
+    a.href = url;
+    a.download = `GymOffroad_respaldo_${f}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    const now=new Date().toISOString();
+    try{ localStorage.setItem(LS_LASTBK, now); }catch(e){}
+    const st=document.getElementById("bk-status");
+    if(st){ st.className="backup-status ok"; st.textContent=`✓ Respaldo generado: ${totalLogs} registros de peso y ${att.length} días de asistencia. Ahora guárdalo en Google Drive desde tus descargas.`; }
+    const meta=document.getElementById("bk-meta");
+    if(meta) meta.textContent=lastBackupTxt();
+  }catch(e){
+    const st=document.getElementById("bk-status");
+    if(st){ st.className="backup-status err"; st.textContent="✗ No se pudo generar el respaldo: "+e.message; }
+  }
+}
+function importBackup(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const st=document.getElementById("bk-status");
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(data.app!=="GymOffroad" || !data.registros || !data.asistencia){
+        throw new Error("El archivo no es un respaldo válido de Gym Offroad.");
+      }
+      // fusiona: conserva lo más reciente por ejercicio/fecha
+      Object.keys(data.registros).forEach(ejId=>{
+        if(!logs[ejId]) logs[ejId]=[];
+        data.registros[ejId].forEach(entry=>{
+          const i=logs[ejId].findIndex(x=>x.date===entry.date);
+          if(i>=0) logs[ejId][i]=entry; else logs[ejId].push(entry);
+        });
+        logs[ejId].sort((a,b)=>a.date<b.date?-1:1);
+      });
+      data.asistencia.forEach(d=>{ if(!att.includes(d)) att.push(d); });
+      att.sort();
+      saveLogs(); saveAtt();
+      const totalLogs = Object.values(logs).reduce((a,h)=>a+h.length,0);
+      if(st){ st.className="backup-status ok"; st.textContent=`✓ Respaldo restaurado y fusionado con tus datos actuales: ${totalLogs} registros de peso y ${att.length} días de asistencia en total.`; }
+      updateStreak();
+    }catch(e){
+      if(st){ st.className="backup-status err"; st.textContent="✗ Error al importar: "+e.message; }
+    }
+    input.value="";
+  };
+  reader.readAsText(file);
+}
+
+/* ============ RENDER PRINCIPAL ============ */
+function updateStreak(){
+  const m=todayStr().slice(0,7);
+  const c=att.filter(a=>a.startsWith(m)).length;
+  const b=document.getElementById("streak-badge");
+  if(b) b.textContent=`💪 ${c} día${c===1?'':'s'} este mes`;
+}
+function render(){
+  const v=document.getElementById("view");
+  if(tab==="rutina") v.innerHTML=renderRutina();
+  else if(tab==="asistencia") v.innerHTML=renderAsistencia();
+  else if(tab==="progreso") v.innerHTML=renderProgreso();
+  else v.innerHTML=renderGuia();
+  updateStreak();
+}
+render();
+</script>
+</body>
+</html>
