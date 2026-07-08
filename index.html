@@ -77,6 +77,18 @@ html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-u
 .log-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
 .last-session{font-size:11px;color:var(--accent2);margin-bottom:10px;line-height:1.5}
 .last-session b{color:var(--text)}
+.set-check{font-size:10px;font-weight:800}
+.set-check.hit{color:var(--green)}
+.set-check.miss{color:var(--muted)}
+.progress-alert{background:rgba(63,185,80,.1);border:1px solid var(--green);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--green);line-height:1.55;margin-bottom:10px;font-weight:600}
+.progress-alert b{color:var(--green)}
+.progress-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(63,185,80,.15);color:var(--green);font-size:10px;font-weight:800;padding:3px 8px;border-radius:7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.summary-ready{margin:0 16px 14px;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);border-radius:14px;padding:14px 16px}
+.summary-ready-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px}
+.summary-ready-item{font-size:12px;color:var(--text);padding:5px 0;border-top:1px solid rgba(63,185,80,.15)}
+.summary-ready-item:first-child{border-top:none}
+.summary-ready-item b{color:var(--green)}
+.summary-none{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;font-size:12px;color:var(--muted);line-height:1.6}
 .serie-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .serie-lbl{font-size:11px;font-weight:700;color:var(--muted);width:48px;flex-shrink:0}
 .serie-row input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:8px 10px;text-align:center;-moz-appearance:textfield}
@@ -433,12 +445,45 @@ function toggleEx(id){
 }
 
 /* ============ VISTA RUTINA ============ */
-function lastLogHtml(ejId){
-  const hist = logs[ejId];
+/* ============ SEMÁFORO DE PROGRESIÓN ============ */
+const WEIGHT_STEP = 2.5; // incremento sugerido en kg
+function progressionStatus(ex){
+  // Solo aplica a ejercicios con registro de peso/reps
+  if(!ex.log || !ex.reps) return {ready:false};
+  const hist = logs[ex.id];
+  if(!hist || !hist.length) return {ready:false};
+  const last = hist[hist.length-1];
+  if(!last.sets.length) return {ready:false};
+  const allHit = last.sets.every(s => (s.r||0) >= ex.reps && (s.w||0) > 0);
+  if(!allHit) return {ready:false, last};
+  const maxW = Math.max(...last.sets.map(s=>s.w||0));
+  const nextW = (maxW + WEIGHT_STEP);
+  const nextWtxt = (nextW % 1 === 0) ? nextW.toFixed(0) : nextW.toFixed(1);
+  return {
+    ready:true,
+    last,
+    suggestion:`Sube a ${nextWtxt} kg y baja a 8–10 repeticiones por serie.`,
+    short:`${nextWtxt} kg × 8–10`
+  };
+}
+
+
+function lastLogHtml(ex){
+  const hist = logs[ex.id];
   if(!hist || !hist.length) return '<div class="last-session">Primera vez — registra tu peso inicial para empezar la carga progresiva.</div>';
   const last = hist[hist.length-1];
-  const sets = last.sets.map((s,i)=>`S${i+1}: <b>${s.w||0} kg × ${s.r||0}</b>`).join(" · ");
-  return `<div class="last-session">📌 Última sesión (${fmtShort(last.date)}): ${sets}</div>`;
+  const target = ex.reps||0;
+  const sets = last.sets.map((s,i)=>{
+    const hit = target>0 && (s.r||0)>=target;
+    const mark = target>0 ? `<span class="set-check ${hit?'hit':'miss'}">${hit?'✓':'·'}</span>` : '';
+    return `S${i+1}: <b>${s.w||0} kg × ${s.r||0}</b> ${mark}`;
+  }).join(" &nbsp; ");
+  let html = `<div class="last-session">📌 Última sesión (${fmtShort(last.date)}): ${sets}</div>`;
+  const st = progressionStatus(ex);
+  if(st.ready){
+    html += `<div class="progress-alert">🔼 <b>¡Dominaste este peso!</b> Completaste las ${target} reps en todas las series. ${st.suggestion}</div>`;
+  }
+  return html;
 }
 
 function logInputsHtml(ex){
@@ -515,11 +560,12 @@ function renderRutina(){
       const isG=!!ex.glute;
       const open=!!abiertos[ex.id];
       const ytUrl=`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}`;
+      const pst = ex.log ? progressionStatus(ex) : {ready:false};
       html += `<div class="ex-card${isG?' glute':''}${open?' open':''}" id="card-${ex.id}">
         <div class="ex-head" onclick="toggleEx('${ex.id}')">
           <div class="ex-num${isG?' g':''}">${ex.log?n:'•'}</div>
           <div class="ex-info">
-            <div class="ex-name">${ex.n}</div>
+            <div class="ex-name">${ex.n}${pst.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':''}</div>
             <div class="ex-sets">${ex.s}</div>
             <span class="ex-muscle${isG?' g':''}">${ex.m}</span>
           </div>
@@ -533,7 +579,7 @@ function renderRutina(){
           ${ex.log?`
           <div class="log-section" onclick="event.stopPropagation()">
             <div class="log-title">📝 Registro de pesos</div>
-            ${lastLogHtml(ex.id)}
+            ${lastLogHtml(ex)}
             ${logInputsHtml(ex)}
             <button class="save-btn" id="save_${ex.id}" onclick="saveLog('${ex.id}',${ex.series})">Guardar pesos de hoy</button>
           </div>`:''}
@@ -611,10 +657,20 @@ function renderProgreso(){
   if(!withLogs.length){
     return `<div class="empty-state"><i class="empty-ico">📈</i>Aún no hay registros.<br>Ve a la pestaña Rutina, abre un ejercicio y guarda tus pesos de hoy.<br><br><b style="color:var(--accent)">Sin registro no hay carga progresiva real.</b></div>`;
   }
-  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo y buena técnica, sube el peso 2.5 kg (o el incremento mínimo de la máquina) la siguiente sesión.</div>`;
+  const readyList = withLogs.map(e=>({e, st:progressionStatus(e)})).filter(x=>x.st.ready);
+  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo y buena técnica, sube el peso y baja a 8–10 repeticiones hasta recuperar el rango original.</div>`;
+  if(readyList.length){
+    html += `<div class="summary-ready">
+      <div class="summary-ready-title">🔼 Listos para subir peso hoy (${readyList.length})</div>
+      ${readyList.map(x=>`<div class="summary-ready-item"><b>${x.e.n}</b> — ${x.st.short}</div>`).join('')}
+    </div>`;
+  } else {
+    html += `<div class="summary-none">Ningún ejercicio está listo para subir peso todavía. Sigue registrando cada sesión — en cuanto completes todas las series con la meta de repeticiones, aparecerá aquí automáticamente.</div>`;
+  }
   withLogs.forEach(e=>{
     const hist=logs[e.id];
     const recent=hist.slice(-4).reverse();
+    const st=progressionStatus(e);
     let rows="";
     recent.forEach((h,i)=>{
       const best=Math.max(...h.sets.map(s=>s.w||0));
@@ -627,7 +683,7 @@ function renderProgreso(){
       }
       rows+=`<div><b>${fmtShort(h.date)}</b> — ${setsTxt} ${delta}</div>`;
     });
-    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}</div><div class="prog-history">${rows}</div></div>`;
+    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}${st.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':''}</div><div class="prog-history">${rows}</div></div>`;
   });
   html+=`<div class="section-intro" style="padding-top:8px">💾 Recuerda respaldar tus registros periódicamente desde la pestaña <b style="color:var(--accent2)">Guía → Respaldo en Google Drive</b>.</div>`;
   html+=`<div class="spacer"></div>`;
