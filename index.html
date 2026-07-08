@@ -82,7 +82,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-u
 .set-check.miss{color:var(--muted)}
 .progress-alert{background:rgba(63,185,80,.1);border:1px solid var(--green);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--green);line-height:1.55;margin-bottom:10px;font-weight:600}
 .progress-alert b{color:var(--green)}
+.progress-alert.pending{background:rgba(240,136,62,.1);border-color:var(--accent);color:var(--accent)}
 .progress-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(63,185,80,.15);color:var(--green);font-size:10px;font-weight:800;padding:3px 8px;border-radius:7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.progress-badge.pending{background:rgba(240,136,62,.15);color:var(--accent)}
 .summary-ready{margin:0 16px 14px;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);border-radius:14px;padding:14px 16px}
 .summary-ready-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px}
 .summary-ready-item{font-size:12px;color:var(--text);padding:5px 0;border-top:1px solid rgba(63,185,80,.15)}
@@ -446,7 +448,14 @@ function toggleEx(id){
 
 /* ============ VISTA RUTINA ============ */
 /* ============ SEMÁFORO DE PROGRESIÓN ============ */
-const WEIGHT_STEP = 2.5; // incremento sugerido en kg
+const WEIGHT_STEP = 2.5;      // incremento sugerido en kg
+const SESIONES_CONFIRMACION = 2; // sesiones consecutivas exitosas requeridas antes de sugerir subir peso
+
+function sessionHitsTarget(entry, targetReps){
+  if(!entry || !entry.sets || !entry.sets.length) return false;
+  return entry.sets.every(s => (s.r||0) >= targetReps && (s.w||0) > 0);
+}
+
 function progressionStatus(ex){
   // Solo aplica a ejercicios con registro de peso/reps
   if(!ex.log || !ex.reps) return {ready:false};
@@ -454,15 +463,39 @@ function progressionStatus(ex){
   if(!hist || !hist.length) return {ready:false};
   const last = hist[hist.length-1];
   if(!last.sets.length) return {ready:false};
-  const allHit = last.sets.every(s => (s.r||0) >= ex.reps && (s.w||0) > 0);
-  if(!allHit) return {ready:false, last};
-  const maxW = Math.max(...last.sets.map(s=>s.w||0));
-  const nextW = (maxW + WEIGHT_STEP);
+
+  const lastHit = sessionHitsTarget(last, ex.reps);
+  if(!lastHit) return {ready:false, last, confirmedCount:0};
+
+  const lastMaxW = Math.max(...last.sets.map(s=>s.w||0));
+
+  // Cuenta cuántas sesiones consecutivas más recientes (al mismo peso) cumplieron la meta
+  let confirmedCount = 0;
+  for(let i = hist.length - 1; i >= 0; i--){
+    const entry = hist[i];
+    const entryMaxW = Math.max(...entry.sets.map(s=>s.w||0));
+    // Debe ser el mismo peso de trabajo para que cuente como confirmación del mismo nivel
+    if(Math.abs(entryMaxW - lastMaxW) < 0.01 && sessionHitsTarget(entry, ex.reps)){
+      confirmedCount++;
+    } else {
+      break;
+    }
+  }
+
+  if(confirmedCount < SESIONES_CONFIRMACION){
+    return {
+      ready:false, last, confirmedCount,
+      pending:true,
+      pendingMsg:`Completaste la meta hoy (${confirmedCount}/${SESIONES_CONFIRMACION} sesiones seguidas con ${lastMaxW} kg). Repite este peso una vez más cumpliendo todas las series para confirmar el aumento.`
+    };
+  }
+
+  const nextW = (lastMaxW + WEIGHT_STEP);
   const nextWtxt = (nextW % 1 === 0) ? nextW.toFixed(0) : nextW.toFixed(1);
   return {
     ready:true,
-    last,
-    suggestion:`Sube a ${nextWtxt} kg y baja a 8–10 repeticiones por serie.`,
+    last, confirmedCount,
+    suggestion:`Confirmado en ${confirmedCount} sesiones seguidas con ${lastMaxW} kg. Sube a ${nextWtxt} kg y baja a 8–10 repeticiones por serie.`,
     short:`${nextWtxt} kg × 8–10`
   };
 }
@@ -481,7 +514,9 @@ function lastLogHtml(ex){
   let html = `<div class="last-session">📌 Última sesión (${fmtShort(last.date)}): ${sets}</div>`;
   const st = progressionStatus(ex);
   if(st.ready){
-    html += `<div class="progress-alert">🔼 <b>¡Dominaste este peso!</b> Completaste las ${target} reps en todas las series. ${st.suggestion}</div>`;
+    html += `<div class="progress-alert">🔼 <b>¡Dominaste este peso!</b> ${st.suggestion}</div>`;
+  } else if(st.pending){
+    html += `<div class="progress-alert pending">⏳ <b>Casi listo.</b> ${st.pendingMsg}</div>`;
   }
   return html;
 }
@@ -565,7 +600,7 @@ function renderRutina(){
         <div class="ex-head" onclick="toggleEx('${ex.id}')">
           <div class="ex-num${isG?' g':''}">${ex.log?n:'•'}</div>
           <div class="ex-info">
-            <div class="ex-name">${ex.n}${pst.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':''}</div>
+            <div class="ex-name">${ex.n}${pst.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':(pst.pending?`<span class="progress-badge pending">⏳ ${pst.confirmedCount}/${SESIONES_CONFIRMACION}</span>`:'')}</div>
             <div class="ex-sets">${ex.s}</div>
             <span class="ex-muscle${isG?' g':''}">${ex.m}</span>
           </div>
@@ -658,14 +693,22 @@ function renderProgreso(){
     return `<div class="empty-state"><i class="empty-ico">📈</i>Aún no hay registros.<br>Ve a la pestaña Rutina, abre un ejercicio y guarda tus pesos de hoy.<br><br><b style="color:var(--accent)">Sin registro no hay carga progresiva real.</b></div>`;
   }
   const readyList = withLogs.map(e=>({e, st:progressionStatus(e)})).filter(x=>x.st.ready);
-  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo y buena técnica, sube el peso y baja a 8–10 repeticiones hasta recuperar el rango original.</div>`;
+  const pendingList = withLogs.map(e=>({e, st:progressionStatus(e)})).filter(x=>x.st.pending);
+  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo en <b style="color:var(--text)">${SESIONES_CONFIRMACION} sesiones seguidas</b> con el mismo peso, sube el peso y baja a 8–10 repeticiones hasta recuperar el rango original. Confirmar con 2 sesiones evita subir peso por un día excepcionalmente bueno.</div>`;
   if(readyList.length){
     html += `<div class="summary-ready">
-      <div class="summary-ready-title">🔼 Listos para subir peso hoy (${readyList.length})</div>
+      <div class="summary-ready-title">🔼 Confirmados — listos para subir peso (${readyList.length})</div>
       ${readyList.map(x=>`<div class="summary-ready-item"><b>${x.e.n}</b> — ${x.st.short}</div>`).join('')}
     </div>`;
-  } else {
-    html += `<div class="summary-none">Ningún ejercicio está listo para subir peso todavía. Sigue registrando cada sesión — en cuanto completes todas las series con la meta de repeticiones, aparecerá aquí automáticamente.</div>`;
+  }
+  if(pendingList.length){
+    html += `<div class="summary-ready" style="background:rgba(240,136,62,.08);border-color:rgba(240,136,62,.3)">
+      <div class="summary-ready-title" style="color:var(--accent)">⏳ Pendientes de confirmar (${pendingList.length})</div>
+      ${pendingList.map(x=>`<div class="summary-ready-item"><b>${x.e.n}</b> — ${x.st.confirmedCount}/${SESIONES_CONFIRMACION} sesiones, repite el mismo peso una vez más</div>`).join('')}
+    </div>`;
+  }
+  if(!readyList.length && !pendingList.length){
+    html += `<div class="summary-none">Ningún ejercicio está cerca de subir peso todavía. Sigue registrando cada sesión — en cuanto completes todas las series con la meta de repeticiones, aparecerá aquí automáticamente.</div>`;
   }
   withLogs.forEach(e=>{
     const hist=logs[e.id];
@@ -683,7 +726,8 @@ function renderProgreso(){
       }
       rows+=`<div><b>${fmtShort(h.date)}</b> — ${setsTxt} ${delta}</div>`;
     });
-    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}${st.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':''}</div><div class="prog-history">${rows}</div></div>`;
+    const badge = st.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':(st.pending?`<span class="progress-badge pending">⏳ ${st.confirmedCount}/${SESIONES_CONFIRMACION}</span>`:'');
+    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}${badge}</div><div class="prog-history">${rows}</div></div>`;
   });
   html+=`<div class="section-intro" style="padding-top:8px">💾 Recuerda respaldar tus registros periódicamente desde la pestaña <b style="color:var(--accent2)">Guía → Respaldo en Google Drive</b>.</div>`;
   html+=`<div class="spacer"></div>`;
@@ -707,7 +751,7 @@ function renderGuia(){
   </div>
   <div class="guide-card"><div class="guide-title">🎯 Volumen semanal (el sweet spot)</div><div class="guide-text">Cada grupo muscular recibe entre 8 y 12 series semanales, el rango óptimo para ganar músculo como novato. Glúteos reciben ~12 series (énfasis solicitado) repartidas entre martes y jueves con 48 horas de descanso entre ambas.</div></div>
   <div class="guide-card"><div class="guide-title">🔁 Descanso entre grupos musculares</div><div class="guide-text">El split está diseñado para que ningún músculo se trabaje sin al menos 48 horas de recuperación: empuje (lunes) → pierna A (martes) → jale (miércoles) → pierna B (jueves) → core/funcional (viernes). El músculo crece durante el descanso, no durante el entrenamiento.</div></div>
-  <div class="guide-card"><div class="guide-title">📝 Carga progresiva (la clave de todo)</div><div class="guide-text">Registra peso y repeticiones de CADA serie en la app. La regla: cuando completes todas las series con las reps objetivo y técnica limpia, sube 2.5 kg la siguiente sesión. Si no completas las reps, mantén el peso hasta dominarlo. Este simple hábito es la diferencia entre progresar y estancarse.</div></div>
+  <div class="guide-card"><div class="guide-title">📝 Carga progresiva (la clave de todo)</div><div class="guide-text">Registra peso y repeticiones de CADA serie en la app. La regla: cuando completes todas las series con las reps objetivo en <b style="color:var(--accent2)">2 sesiones seguidas</b> con el mismo peso, sube 2.5 kg y baja a 8–10 reps la siguiente sesión. Exigir 2 sesiones confirma que dominaste el peso de verdad, no que tuviste un día excepcional. La app calcula esto automáticamente y te avisa con una etiqueta 🔼 cuando estés listo.</div></div>
   <div class="guide-card"><div class="guide-title">💪 Esfuerzo real (cerca del fallo)</div><div class="guide-text">Tus 12 repeticiones deben terminar sintiendo que solo podrías hacer 2 más con buena técnica (RIR 2). Si terminas fresco, el peso es poco. Si tu técnica se rompe antes de la rep 10, es demasiado. El rango útil de hipertrofia va de 6 a 20 reps.</div></div>
   <div class="guide-card"><div class="guide-title">🏃 Cardio estratégico</div><div class="guide-text">Siempre al final, 10 minutos, intensidad moderada (puedes mantener una conversación). Antes de pesas robaría energía al trabajo muscular, que es tu prioridad absoluta para ganar músculo.</div></div>
   <div class="guide-card"><div class="guide-title">🏍️ Conexión offroad</div><div class="guide-text">Cada día incluye trabajo directamente transferible a la moto: agarre (curl martillo, farmer's walk), core antirrotación (press Pallof), equilibrio unilateral (búlgaras, zancadas) y resistencia postural (hip thrust, lumbares). En 8-12 semanas notarás menos fatiga de brazos, mejor control de pie en los estribos y recuperación más rápida entre rutas.</div></div>
