@@ -596,18 +596,29 @@ function renderRutina(){
       const open=!!abiertos[ex.id];
       const ytUrl=`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}`;
       const pst = ex.log ? progressionStatus(ex) : {ready:false};
+      const primMus = MUS[ex.id] && MUS[ex.id].p.length ? MUS[ex.id].p[0] : null;
+      const musColor = primMus ? MCOLORS[primMus] : null;
+      const musChipStyle = musColor ? `style="color:${musColor};background:${musColor}22;border:1px solid ${musColor}44"` : '';
       html += `<div class="ex-card${isG?' glute':''}${open?' open':''}" id="card-${ex.id}">
         <div class="ex-head" onclick="toggleEx('${ex.id}')">
           <div class="ex-num${isG?' g':''}">${ex.log?n:'•'}</div>
           <div class="ex-info">
             <div class="ex-name">${ex.n}${pst.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':(pst.pending?`<span class="progress-badge pending">⏳ ${pst.confirmedCount}/${SESIONES_CONFIRMACION}</span>`:'')}</div>
             <div class="ex-sets">${ex.s}</div>
-            <span class="ex-muscle${isG?' g':''}">${ex.m}</span>
+            <span class="ex-muscle" ${musChipStyle}>${ex.m}</span>
           </div>
           <i class="ex-arrow">▾</i>
         </div>
         <div class="ex-body">
           <img class="ex-img" src="${ex.img}" alt="${ex.n}" loading="lazy" onerror="this.style.display='none'">
+          ${MUS[ex.id]?`
+          <div style="display:flex;gap:12px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:12px">
+            <div style="flex-shrink:0">${bodySVG(ex.id, 108)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Músculos trabajados</div>
+              ${muscleChips(ex.id)}
+            </div>
+          </div>`:''}
           <p class="ex-desc">${ex.d}</p>
           <div class="ex-tip ${isG?'pk':'gr'}">💡 ${ex.t}</div>
           <a class="yt-btn" href="${ytUrl}" target="_blank" rel="noopener"><span class="yt-ic">▶</span> Ver técnica en YouTube</a>
@@ -683,9 +694,149 @@ function renderAsistencia(){
 }
 function calMove(d){ calRef=new Date(calRef.getFullYear(),calRef.getMonth()+d,1); render(); }
 
+/* ============ MAPA MUSCULAR ============ */
+const MCOLORS = {
+  pecho:"#e8734a", hombros:"#f0b13c", triceps:"#e06fa0", biceps:"#8f7ff0",
+  antebrazo:"#b3a7f5", espalda:"#4a9ce8", trapecio:"#6fb6f0", lumbar:"#2f6fb5",
+  core:"#35c29a", gluteo:"#f778ba", cuadriceps:"#8fc74a", isquios:"#c7b34a",
+  pantorrillas:"#9aa66f"
+};
+const MNAMES = {
+  pecho:"Pecho", hombros:"Hombros", triceps:"Tríceps", biceps:"Bíceps",
+  antebrazo:"Antebrazo", espalda:"Espalda", trapecio:"Trapecio", lumbar:"Lumbar",
+  core:"Core", gluteo:"Glúteo", cuadriceps:"Cuádriceps", isquios:"Isquiotibiales",
+  pantorrillas:"Pantorrillas"
+};
+const MUS = {
+  lun_1:{p:["pecho"],s:["hombros","triceps"]},
+  lun_2:{p:["pecho"],s:["hombros","triceps"]},
+  lun_3:{p:["hombros"],s:["triceps","trapecio"]},
+  lun_4:{p:["hombros"],s:[]},
+  lun_5:{p:["triceps"],s:[]},
+  lun_6:{p:["triceps"],s:["pecho","hombros"]},
+  mar_1:{p:["cuadriceps","gluteo"],s:["isquios"]},
+  mar_2:{p:["cuadriceps","gluteo"],s:["core"]},
+  mar_3:{p:["cuadriceps"],s:[]},
+  mar_4:{p:["gluteo"],s:["isquios","core"]},
+  mar_5:{p:["pantorrillas"],s:[]},
+  mie_1:{p:["espalda"],s:["biceps"]},
+  mie_2:{p:["espalda"],s:["biceps","trapecio"]},
+  mie_3:{p:["espalda"],s:["biceps","core"]},
+  mie_4:{p:["biceps"],s:[]},
+  mie_5:{p:["biceps","antebrazo"],s:[]},
+  mie_6:{p:["lumbar"],s:["gluteo","isquios"]},
+  jue_1:{p:["gluteo","isquios"],s:["lumbar"]},
+  jue_2:{p:["gluteo"],s:["isquios"]},
+  jue_3:{p:["isquios"],s:[]},
+  jue_4:{p:["gluteo"],s:[]},
+  jue_5:{p:["gluteo"],s:[]},
+  jue_6:{p:["gluteo","cuadriceps"],s:["core"]},
+  vie_1:{p:["core"],s:["hombros"]},
+  vie_2:{p:["core"],s:["hombros"]},
+  vie_3:{p:["cuadriceps","gluteo"],s:["core"]},
+  vie_4:{p:["espalda"],s:["biceps","core"]},
+  vie_5:{p:["hombros"],s:["trapecio","espalda"]},
+  vie_6:{p:["antebrazo","trapecio"],s:["core"]}
+};
+const MBASE = "#262633"; // músculo sin trabajar
+
+function bodySVG(exId, w){
+  const mus = MUS[exId] || {p:[],s:[]};
+  const fill = id => {
+    if(mus.p.includes(id)) return {f:MCOLORS[id], o:1};
+    if(mus.s.includes(id)) return {f:MCOLORS[id], o:0.4};
+    return {f:MBASE, o:1};
+  };
+  const F = id => { const x=fill(id); return `fill="${x.f}" fill-opacity="${x.o}"`; };
+  const width = w||150;
+  return `<svg viewBox="0 0 200 190" width="${width}" xmlns="http://www.w3.org/2000/svg" style="display:block">
+  <g stroke="#3a3a48" stroke-width="1">
+    <circle cx="50" cy="14" r="9" fill="#262633"/>
+    <rect x="46" y="22" width="8" height="6" fill="#262633"/>
+    <circle cx="33" cy="34" r="7" ${F("hombros")}/>
+    <circle cx="67" cy="34" r="7" ${F("hombros")}/>
+    <path d="M38 30 Q50 26 62 30 L62 48 Q50 53 38 48 Z" ${F("pecho")}/>
+    <ellipse cx="27" cy="53" rx="5.5" ry="10" ${F("biceps")}/>
+    <ellipse cx="73" cy="53" rx="5.5" ry="10" ${F("biceps")}/>
+    <ellipse cx="24" cy="74" rx="4.5" ry="10" ${F("antebrazo")}/>
+    <ellipse cx="76" cy="74" rx="4.5" ry="10" ${F("antebrazo")}/>
+    <rect x="40" y="50" width="20" height="34" rx="5" ${F("core")}/>
+    <ellipse cx="43" cy="108" rx="7.5" ry="20" ${F("cuadriceps")}/>
+    <ellipse cx="57" cy="108" rx="7.5" ry="20" ${F("cuadriceps")}/>
+    <ellipse cx="43" cy="152" rx="5" ry="15" fill="#262633"/>
+    <ellipse cx="57" cy="152" rx="5" ry="15" fill="#262633"/>
+    <circle cx="150" cy="14" r="9" fill="#262633"/>
+    <rect x="146" y="22" width="8" height="6" fill="#262633"/>
+    <path d="M141 27 L159 27 L154 40 L146 40 Z" ${F("trapecio")}/>
+    <circle cx="133" cy="34" r="7" ${F("hombros")}/>
+    <circle cx="167" cy="34" r="7" ${F("hombros")}/>
+    <path d="M138 32 L162 32 L158 60 L142 60 Z" ${F("espalda")}/>
+    <ellipse cx="127" cy="53" rx="5.5" ry="10" ${F("triceps")}/>
+    <ellipse cx="173" cy="53" rx="5.5" ry="10" ${F("triceps")}/>
+    <ellipse cx="124" cy="74" rx="4.5" ry="10" ${F("antebrazo")}/>
+    <ellipse cx="176" cy="74" rx="4.5" ry="10" ${F("antebrazo")}/>
+    <rect x="143" y="60" width="14" height="14" rx="3" ${F("lumbar")}/>
+    <ellipse cx="144" cy="84" rx="7" ry="8.5" ${F("gluteo")}/>
+    <ellipse cx="156" cy="84" rx="7" ry="8.5" ${F("gluteo")}/>
+    <ellipse cx="143" cy="113" rx="7" ry="17" ${F("isquios")}/>
+    <ellipse cx="157" cy="113" rx="7" ry="17" ${F("isquios")}/>
+    <ellipse cx="143" cy="152" rx="5" ry="15" ${F("pantorrillas")}/>
+    <ellipse cx="157" cy="152" rx="5" ry="15" ${F("pantorrillas")}/>
+  </g>
+  <text x="50" y="185" text-anchor="middle" font-size="9" fill="#8b949e">Frente</text>
+  <text x="150" y="185" text-anchor="middle" font-size="9" fill="#8b949e">Espalda</text>
+</svg>`;
+}
+
+function muscleChips(exId){
+  const mus = MUS[exId];
+  if(!mus) return "";
+  const chip = (id, prim) => {
+    const c = MCOLORS[id];
+    return prim
+      ? `<span style="background:${c}33;color:${c};border:1px solid ${c}66;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">${MNAMES[id]}</span>`
+      : `<span style="background:transparent;color:${c}aa;border:1px dashed ${c}55;font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px">${MNAMES[id]}</span>`;
+  };
+  return `<div style="display:flex;flex-wrap:wrap;gap:5px">${mus.p.map(m=>chip(m,true)).join('')}${mus.s.map(m=>chip(m,false)).join('')}</div>`;
+}
+
+function sparklineSVG(hist, target){
+  const pts = hist.slice(-10).map(h=>Math.max(...h.sets.map(s=>s.w||0)));
+  if(pts.length<2) return `<div style="font-size:11px;color:var(--muted);text-align:center;padding:14px 0">Registra al menos 2 sesiones para ver tu tendencia</div>`;
+  const W=280, H=56, PAD=6;
+  const mn=Math.min(...pts), mx=Math.max(...pts);
+  const rng=(mx-mn)||1;
+  const px=i=>PAD+i*(W-2*PAD)/(pts.length-1);
+  const py=v=>H-PAD-((v-mn)/rng)*(H-2*PAD);
+  const poly=pts.map((v,i)=>`${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ");
+  const area=`${PAD},${H-PAD} ${poly} ${px(pts.length-1).toFixed(1)},${H-PAD}`;
+  const dots=pts.map((v,i)=>`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="3" fill="${i===pts.length-1?'#3fb950':'#79c0ff'}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+    <polygon points="${area}" fill="rgba(121,192,255,.12)"/>
+    <polyline points="${poly}" fill="none" stroke="#79c0ff" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}
+  </svg>
+  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px"><span>${mn} kg</span><span>máx ${mx} kg</span></div>`;
+}
+
+function seriesBarsHTML(entry, target){
+  if(!entry||!entry.sets.length) return "";
+  return entry.sets.map((s,i)=>{
+    const hit = target>0 && (s.r||0)>=target;
+    const pct = target>0 ? Math.min(100, Math.round(((s.r||0)/target)*100)) : 100;
+    const col = hit ? '#3fb950' : '#d29922';
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <span style="font-size:11px;color:var(--muted);width:44px;flex-shrink:0">Serie ${i+1}</span>
+      <div style="flex:1;height:9px;background:var(--surface2);border-radius:5px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col}"></div>
+      </div>
+      <span style="font-size:11px;font-weight:700;width:52px;text-align:right;color:${hit?'#3fb950':'#d29922'}">${s.w||0}kg×${s.r||0}</span>
+    </div>`;
+  }).join("");
+}
+
 /* ============ VISTA PROGRESO ============ */
 function renderProgreso(){
-  // recopila ejercicios con registros
   const allEx=[];
   dias.forEach(d=>d.fases.forEach(f=>f.ej.forEach(e=>{ if(e.log) allEx.push(e); })));
   const withLogs=allEx.filter(e=>logs[e.id]&&logs[e.id].length);
@@ -694,7 +845,7 @@ function renderProgreso(){
   }
   const readyList = withLogs.map(e=>({e, st:progressionStatus(e)})).filter(x=>x.st.ready);
   const pendingList = withLogs.map(e=>({e, st:progressionStatus(e)})).filter(x=>x.st.pending);
-  let html=`<div class="section-intro">Tu historial por ejercicio. La regla de la carga progresiva: cuando completes todas las series con las repeticiones objetivo en <b style="color:var(--text)">${SESIONES_CONFIRMACION} sesiones seguidas</b> con el mismo peso, sube el peso y baja a 8–10 repeticiones hasta recuperar el rango original. Confirmar con 2 sesiones evita subir peso por un día excepcionalmente bueno.</div>`;
+  let html=`<div class="section-intro">Cada tarjeta muestra tu peso actual, la tendencia de las últimas sesiones, el detalle de tu última sesión serie por serie, y el mapa muscular del ejercicio. Regla: <b style="color:var(--text)">${SESIONES_CONFIRMACION} sesiones seguidas</b> cumpliendo la meta con el mismo peso = subir peso y bajar a 8–10 reps.</div>`;
   if(readyList.length){
     html += `<div class="summary-ready">
       <div class="summary-ready-title">🔼 Confirmados — listos para subir peso (${readyList.length})</div>
@@ -708,26 +859,49 @@ function renderProgreso(){
     </div>`;
   }
   if(!readyList.length && !pendingList.length){
-    html += `<div class="summary-none">Ningún ejercicio está cerca de subir peso todavía. Sigue registrando cada sesión — en cuanto completes todas las series con la meta de repeticiones, aparecerá aquí automáticamente.</div>`;
+    html += `<div class="summary-none">Ningún ejercicio está cerca de subir peso todavía. Sigue registrando cada sesión.</div>`;
   }
+
   withLogs.forEach(e=>{
     const hist=logs[e.id];
-    const recent=hist.slice(-4).reverse();
+    const last=hist[hist.length-1];
     const st=progressionStatus(e);
-    let rows="";
-    recent.forEach((h,i)=>{
-      const best=Math.max(...h.sets.map(s=>s.w||0));
-      const setsTxt=h.sets.map(s=>`${s.w||0}×${s.r||0}`).join(" · ");
-      let delta="";
-      if(i<recent.length-1){
-        const prevBest=Math.max(...recent[i+1].sets.map(s=>s.w||0));
-        if(best>prevBest) delta=`<span class="prog-delta up">▲ +${(best-prevBest).toFixed(1)} kg</span>`;
-        else if(best===prevBest) delta=`<span class="prog-delta same">= igual</span>`;
-      }
-      rows+=`<div><b>${fmtShort(h.date)}</b> — ${setsTxt} ${delta}</div>`;
-    });
-    const badge = st.ready?'<span class="progress-badge">🔼 SUBE PESO</span>':(st.pending?`<span class="progress-badge pending">⏳ ${st.confirmedCount}/${SESIONES_CONFIRMACION}</span>`:'');
-    html+=`<div class="prog-ex-card"><div class="prog-ex-name">${e.n}${badge}</div><div class="prog-history">${rows}</div></div>`;
+    const curW=Math.max(...last.sets.map(s=>s.w||0));
+    const firstW=Math.max(...hist[0].sets.map(s=>s.w||0));
+    const delta=curW-firstW;
+    const deltaTxt = delta>0
+      ? `<span style="font-size:11px;color:#3fb950;font-weight:700">▲ +${delta%1===0?delta.toFixed(0):delta.toFixed(1)} kg desde el inicio</span>`
+      : `<span style="font-size:11px;color:var(--muted)">peso inicial</span>`;
+    let badge='', badgeMsg='';
+    if(st.ready){
+      badge=`<span class="progress-badge">🔼 SUBE PESO</span>`;
+      badgeMsg=`<div class="progress-alert" style="margin-top:10px;margin-bottom:0">🔼 ${st.suggestion}</div>`;
+    } else if(st.pending){
+      badge=`<span class="progress-badge pending">⏳ ${st.confirmedCount}/${SESIONES_CONFIRMACION}</span>`;
+      badgeMsg=`<div class="progress-alert pending" style="margin-top:10px;margin-bottom:0">⏳ ${st.pendingMsg}</div>`;
+    }
+    html+=`<div class="prog-ex-card" style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px">
+        <div class="prog-ex-name" style="margin-bottom:0">${e.n}${badge}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Meta: ${e.s}</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px">
+        <span style="font-size:26px;font-weight:800;color:var(--text)">${curW%1===0?curW.toFixed(0):curW.toFixed(1)} <span style="font-size:14px;font-weight:600;color:var(--muted)">kg</span></span>
+        ${deltaTxt}
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          ${sparklineSVG(hist, e.reps)}
+          <div style="font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">Última sesión (${fmtShort(last.date)})</div>
+          ${seriesBarsHTML(last, e.reps)}
+        </div>
+        <div style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 4px 2px">
+          ${bodySVG(e.id, 116)}
+        </div>
+      </div>
+      <div style="margin-top:8px">${muscleChips(e.id)}</div>
+      ${badgeMsg}
+    </div>`;
   });
   html+=`<div class="section-intro" style="padding-top:8px">💾 Recuerda respaldar tus registros periódicamente desde la pestaña <b style="color:var(--accent2)">Guía → Respaldo en Google Drive</b>.</div>`;
   html+=`<div class="spacer"></div>`;
