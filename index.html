@@ -197,27 +197,27 @@ const dias = [
        img:IMGS.maquina, yt:"calentamiento espalda antes de entrenar gym"}
     ]},
     {label:"Trabajo principal — 70 min", g:false, ej:[
-      {id:"lun_1", n:"Jalón al pecho en polea (agarre ancho)", s:"4 series × 8-10 reps", reps:8, series:4, m:"Dorsal ancho", log:true,
+      {id:"lun_1", n:"Jalón al pecho en polea (agarre ancho)", s:"4 series × 8-10 reps", reps:8, series:4, m:"Dorsal ancho", log:true, inc:2.5, repsMax:10,
        d:"Agarre más ancho que los hombros. Jala la barra hacia la parte alta del pecho sacando el pecho hacia adelante y llevando los codos hacia abajo y atrás. Sube en 3 segundos.",
        t:"Nunca detrás de la cabeza. Imagina que jalas con los codos, no con las manos: así trabaja la espalda y no el bíceps.",
        img:IMGS.maquina, yt:"jalon al pecho polea agarre ancho tecnica correcta"},
-      {id:"lun_2", n:"Remo sentado con disco", s:"3 series × 8-10 reps", reps:8, series:3, m:"Espalda media + dorsales", log:true,
+      {id:"lun_2", n:"Remo sentado con disco", s:"3 series × 8-10 reps", reps:8, series:3, m:"Espalda media + dorsales", log:true, inc:2, repsMax:10,
        d:"Siéntate en la máquina de remo tipo palanca (disc-loaded), pecho apoyado en el soporte. Toma los agarres, jala hacia atrás llevando los codos detrás del torso y juntando los omóplatos. Regresa controlado.",
        t:"El soporte de pecho fijo elimina compensación con la espalda baja: más seguro para acumular volumen pesado en espalda media.",
        img:IMGS.maquina, yt:"remo sentado maquina disco tecnica correcta"},
-      {id:"lun_3", n:"Pullover en polea alta", s:"3 series × 10-12 reps", reps:10, series:3, m:"Dorsal ancho (estiramiento)", log:true,
+      {id:"lun_3", n:"Pullover en polea alta", s:"3 series × 10-12 reps", reps:10, series:3, m:"Dorsal ancho (estiramiento)", log:true, inc:1.25, repsMax:12,
        d:"De pie o con una rodilla en el suelo frente a la polea alta, agarre con ambas manos por encima de la cabeza. Con los codos casi extendidos y fijos, lleva el agarre hacia abajo y hacia los muslos en arco. Siente el estiramiento del dorsal arriba y la contracción abajo.",
        t:"Trabaja el dorsal en un ángulo distinto al remo, en una posición de longitud larga que los otros ejercicios del día no cubren.",
        img:IMGS.polea, yt:"pullover polea alta dorsal tecnica correcta"},
-      {id:"lun_4", n:"Curl de bíceps con barra Z", s:"3 series × 10-12 reps", reps:10, series:3, m:"Bíceps", log:true,
+      {id:"lun_4", n:"Curl de bíceps con barra Z", s:"3 series × 10-12 reps", reps:10, series:3, m:"Bíceps", log:true, inc:1.25, repsMax:12,
        d:"De pie, agarre en los segmentos angulados de la barra Z. Codos fijos y pegados al torso. Sube contrayendo el bíceps, baja en 3 segundos controlados sin balancear el cuerpo.",
        t:"El ángulo de la barra Z reduce la tensión en la muñeca comparado con la barra recta, permitiéndote cargar más peso con menor molestia articular.",
        img:IMGS.mancuerna, yt:"curl biceps barra z tecnica correcta principiante"},
-      {id:"lun_5", n:"Curl martillo (agarre neutro)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Bíceps + antebrazo", log:true,
+      {id:"lun_5", n:"Curl martillo (agarre neutro)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Bíceps + antebrazo", log:true, inc:1, repsMax:12,
        d:"Igual que el curl normal pero con las palmas enfrentadas entre sí (como sostener un martillo). Sube y baja controlado.",
        t:"Este agarre fortalece el antebrazo y la muñeca: exactamente la musculatura que evita la fatiga de manos ('arm pump') en rutas largas de offroad.",
        img:IMGS.mancuerna, yt:"curl martillo mancuernas tecnica antebrazo"},
-      {id:"lun_6", n:"Curl inverso (antebrazo)", s:"3 series × 12-15 reps", reps:12, series:3, m:"Antebrazo", log:true,
+      {id:"lun_6", n:"Curl inverso (antebrazo)", s:"3 series × 12-15 reps", reps:12, series:3, m:"Antebrazo", log:true, inc:1, repsMax:15,
        d:"De pie, barra con agarre en pronación (palmas hacia abajo). Sube doblando los codos manteniéndolos fijos, baja controlado.",
        t:"Antebrazos fuertes son tu 'seguro de vida' contra la fatiga de manos en rutas largas de offroad.",
        img:IMGS.mancuerna, yt:"curl inverso antebrazo tecnica correcta"}
@@ -242,27 +242,27 @@ const dias = [
        img:IMGS.cardio, yt:"calentamiento hombros brazos antes de entrenar pecho"}
     ]},
     {label:"Trabajo principal — 70 min", g:false, ej:[
-      {id:"mar_1", n:"Press de pecho en máquina", s:"4 series × 8-10 reps", reps:8, series:4, m:"Pecho", log:true,
+      {id:"mar_1", n:"Press de pecho en máquina", s:"4 series × 8-10 reps", reps:8, series:4, m:"Pecho", log:true, inc:2.5, repsMax:10,
        d:"Ajusta el asiento para que los agarres queden a la altura del pecho medio. Empuja hacia adelante en 2 segundos, regresa en 3 segundos. No bloquees los codos al final.",
        t:"Tu serie debe terminar sintiendo que podrías hacer solo 2 reps más (cerca del fallo, no al fallo). Si terminas fácil, sube peso la próxima sesión.",
        img:IMGS.maquina, yt:"press pecho maquina tecnica correcta principiante"},
-      {id:"mar_2", n:"Press inclinado con mancuernas", s:"3 series × 10-12 reps", reps:10, series:3, m:"Pecho superior", log:true,
+      {id:"mar_2", n:"Press inclinado con mancuernas", s:"3 series × 10-12 reps", reps:10, series:3, m:"Pecho superior", log:true, inc:2, repsMax:12,
        d:"Banca inclinada a 30–45°. Una mancuerna en cada mano a la altura del pecho. Empuja hacia arriba juntando ligeramente las mancuernas al final. Baja controlado hasta sentir estiramiento.",
        t:"El pecho superior es el que más mejora la imagen corporal del torso. Baja las mancuernas hasta donde tu hombro lo permita sin dolor.",
        img:IMGS.mancuerna, yt:"press inclinado mancuernas tecnica principiante"},
-      {id:"mar_3", n:"Press de hombros en máquina", s:"3 series × 8-10 reps", reps:8, series:3, m:"Hombros (deltoides)", log:true,
+      {id:"mar_3", n:"Press de hombros en máquina", s:"3 series × 8-10 reps", reps:8, series:3, m:"Hombros (deltoides)", log:true, inc:2.5, repsMax:10,
        d:"Siéntate con la espalda bien apoyada. Agarres a la altura de las orejas. Empuja hacia arriba sin bloquear codos. Baja lento hasta la altura inicial.",
        t:"La espalda nunca se arquea. Si necesitas arquearte para subir el peso, es demasiado peso.",
        img:IMGS.maquina, yt:"press hombros maquina tecnica correcta principiante"},
-      {id:"mar_4", n:"Elevaciones laterales con mancuernas", s:"3 series × 12-15 reps", reps:12, series:3, m:"Hombro lateral", log:true,
+      {id:"mar_4", n:"Elevaciones laterales con mancuernas", s:"3 series × 12-15 reps", reps:12, series:3, m:"Hombro lateral", log:true, inc:1, repsMax:15,
        d:"De pie, mancuernas ligeras a los costados. Eleva los brazos hacia los lados hasta la altura de los hombros con los codos ligeramente doblados. Baja en 3 segundos.",
        t:"Peso ligero (3–6 kg). Este ejercicio da la anchura visual de hombros. La técnica importa más que el peso aquí.",
        img:IMGS.mancuerna, yt:"elevaciones laterales tecnica correcta hombro"},
-      {id:"mar_5", n:"Extensión de tríceps sobre cabeza (copa)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Tríceps (cabeza larga)", log:true,
+      {id:"mar_5", n:"Extensión de tríceps sobre cabeza (copa)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Tríceps (cabeza larga)", log:true, inc:2, repsMax:12,
        d:"Sentado o de pie, sostén una mancuerna con ambas manos por su extremo superior (como una copa), brazos extendidos sobre la cabeza. Baja la mancuerna detrás de la nuca doblando solo los codos, fijos y apuntando al techo. Sube sin bloquear.",
        t:"El brazo sobre la cabeza estira al máximo la cabeza larga del tríceps, complementando el ejercicio 6 que trabaja con el brazo pegado al cuerpo.",
        img:IMGS.mancuerna, yt:"extension triceps sobre cabeza copa tecnica correcta"},
-      {id:"mar_6", n:"Extensión de tríceps en polea alta", s:"3 series × 12-15 reps", reps:12, series:3, m:"Tríceps", log:true,
+      {id:"mar_6", n:"Extensión de tríceps en polea alta", s:"3 series × 12-15 reps", reps:12, series:3, m:"Tríceps", log:true, inc:1.25, repsMax:15,
        d:"Frente a la polea alta con cuerda o barra. Codos pegados al torso, fijos. Extiende los brazos hacia abajo por completo, aprieta 1 segundo, sube controlado.",
        t:"El tríceps es 2/3 del volumen del brazo. Si quieres brazos más grandes, el tríceps importa más que el bíceps.",
        img:IMGS.polea, yt:"extension triceps polea cuerda tecnica principiante"}
@@ -287,23 +287,23 @@ const dias = [
        img:IMGS.cardio, yt:"calentamiento piernas antes de entrenar gym"}
     ]},
     {label:"Trabajo principal — 70 min", g:false, ej:[
-      {id:"mie_1", n:"Sentadilla profunda (o goblet squat)", s:"4 series × 8-10 reps", reps:8, series:4, m:"Cuádriceps + glúteo", log:true,
+      {id:"mie_1", n:"Sentadilla profunda (o goblet squat)", s:"4 series × 8-10 reps", reps:8, series:4, m:"Cuádriceps + glúteo", log:true, inc:5, repsMax:10,
        d:"Pies un poco más abiertos que los hombros. Sostén una mancuerna vertical contra el pecho si usas la variante goblet, o barra al hombro. Baja profundo, más allá de 90° si puedes. Sube empujando con los talones.",
        t:"Bajar profundo (full ROM) activa más el glúteo y produce mayor hipertrofia de tren inferior que rangos parciales, según la evidencia.",
        img:IMGS.funcional, yt:"sentadilla profunda goblet squat tecnica correcta"},
-      {id:"mie_2", n:"Prensa de piernas", s:"3 series × 10-12 reps", reps:10, series:3, m:"Cuádriceps + glúteo", log:true,
+      {id:"mie_2", n:"Prensa de piernas", s:"3 series × 10-12 reps", reps:10, series:3, m:"Cuádriceps + glúteo", log:true, inc:5, repsMax:12,
        d:"Pies a la anchura de hombros en la plataforma. Baja hasta que las rodillas formen 90° (o un poco más si tu cadera lo permite sin despegar la espalda baja). Empuja sin bloquear rodillas.",
        t:"Es el ejercicio más seguro para cargar fuerte las piernas. Aquí es donde más rápido vas a progresar en peso: registra cada sesión.",
        img:IMGS.pierna, yt:"prensa piernas leg press tecnica correcta principiante"},
-      {id:"mie_3", n:"Extensiones de cuádriceps en máquina", s:"3 series × 12-15 reps", reps:12, series:3, m:"Cuádriceps", log:true,
+      {id:"mie_3", n:"Extensiones de cuádriceps en máquina", s:"3 series × 12-15 reps", reps:12, series:3, m:"Cuádriceps", log:true, inc:2.5, repsMax:15,
        d:"Tobillos bajo el rodillo. Extiende las piernas por completo, sostén 1 segundo arriba apretando el muslo, baja en 3 segundos.",
        t:"La bajada lenta es donde está la mitad del estímulo. Cuádriceps fuertes protegen tus rodillas en los saltos y caídas del offroad.",
        img:IMGS.polea, yt:"extensiones cuadriceps maquina tecnica correcta"},
-      {id:"mie_4", n:"Zancadas caminando con mancuernas", s:"3 series × 10 pasos c/pierna", reps:10, series:3, m:"Glúteo + cuádriceps + equilibrio", log:true,
+      {id:"mie_4", n:"Zancadas caminando con mancuernas", s:"3 series × 10 pasos c/pierna", reps:10, series:3, m:"Glúteo + cuádriceps + equilibrio", log:true, inc:1.5, repsMax:10,
        d:"Mancuernas a los costados. Da un paso largo, baja la rodilla trasera casi al suelo, empuja con el talón delantero y avanza al siguiente paso.",
        t:"El equilibrio unilateral de las zancadas es el ejercicio más parecido a corregir la moto en terreno irregular.",
        img:IMGS.funcional, yt:"zancadas caminando mancuernas tecnica"},
-      {id:"mie_5", n:"Elevación de talones (rodilla extendida)", s:"4 series × 12-15 reps", reps:12, series:4, m:"Pantorrillas (gastrocnemio)", log:true,
+      {id:"mie_5", n:"Elevación de talones (rodilla extendida)", s:"4 series × 12-15 reps", reps:12, series:4, m:"Pantorrillas (gastrocnemio)", log:true, inc:2.5, repsMax:15,
        d:"De pie en la máquina de pantorrillas o en un escalón, rodilla extendida y bloqueada. Sube en puntas lo más alto posible, sostén 1 segundo, baja lento hasta sentir estiramiento.",
        t:"Rodilla extendida enfatiza el gastrocnemio. Las pantorrillas controlan la punta del pie sobre el freno y el cambio en la moto.",
        img:IMGS.pierna, yt:"elevacion talones rodilla extendida gastrocnemio tecnica"},
@@ -332,23 +332,23 @@ const dias = [
        img:IMGS.general, yt:"calentamiento hombro pecho espalda combinado"}
     ]},
     {label:"Trabajo principal — 70 min", g:false, ej:[
-      {id:"jue_1", n:"Press plano con mancuernas", s:"3 series × 8-10 reps", reps:8, series:3, m:"Pecho", log:true,
+      {id:"jue_1", n:"Press plano con mancuernas", s:"3 series × 8-10 reps", reps:8, series:3, m:"Pecho", log:true, inc:2, repsMax:10,
        d:"Acostado en banca plana, una mancuerna en cada mano a la altura del pecho, codos ligeramente hacia afuera (~45°). Empuja hacia arriba hasta casi juntar las mancuernas. Controla la bajada hasta sentir un estiramiento cómodo.",
        t:"Cubre el pecho en un ángulo distinto al press inclinado del martes, en vez de repetir el mismo patrón dos veces en la semana.",
        img:IMGS.mancuerna, yt:"press plano mancuernas tecnica correcta principiante"},
-      {id:"jue_2", n:"Remo en polea baja", s:"3 series × 10-12 reps", reps:10, series:3, m:"Espalda media + dorsales", log:true,
+      {id:"jue_2", n:"Remo en polea baja", s:"3 series × 10-12 reps", reps:10, series:3, m:"Espalda media + dorsales", log:true, inc:2.5, repsMax:12,
        d:"Sentado con las rodillas semiflexionadas, espalda recta. Jala el agarre hacia el abdomen, juntando los omóplatos al final. Regresa controlado sin encorvar la espalda.",
        t:"Este movimiento replica exactamente jalar el manubrio hacia ti al frenar fuerte en offroad.",
        img:IMGS.polea, yt:"remo sentado polea baja tecnica correcta"},
-      {id:"jue_3", n:"Jalón al pecho (agarre neutro)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Dorsal ancho", log:true,
+      {id:"jue_3", n:"Jalón al pecho (agarre neutro)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Dorsal ancho", log:true, inc:2.5, repsMax:12,
        d:"Agarre neutro (palmas enfrentadas) en la polea alta. Jala hacia el pecho llevando los codos hacia abajo y atrás. Sube en 3 segundos controlados.",
        t:"El agarre neutro es más amigable para el hombro que el agarre ancho, ideal para esta segunda dosis semanal de espalda.",
        img:IMGS.maquina, yt:"jalon al pecho agarre neutro tecnica correcta"},
-      {id:"jue_4", n:"Vuelos laterales (elevaciones laterales)", s:"4 series × 12-15 reps", reps:12, series:4, m:"Hombro lateral", log:true,
+      {id:"jue_4", n:"Vuelos laterales (elevaciones laterales)", s:"4 series × 12-15 reps", reps:12, series:4, m:"Hombro lateral", log:true, inc:1, repsMax:15,
        d:"De pie, mancuernas ligeras a los costados. Eleva los brazos hacia los lados hasta la altura de los hombros, codos ligeramente doblados. Baja en 3 segundos.",
        t:"Serie extra de hombro lateral para completar el volumen semanal sin necesitar un ejercicio pesado adicional.",
        img:IMGS.mancuerna, yt:"vuelos laterales hombro tecnica correcta"},
-      {id:"jue_5", n:"Cruces en poleas (aislamiento pecho)", s:"3 series × 12-15 reps", reps:12, series:3, m:"Pecho (aislamiento)", log:true,
+      {id:"jue_5", n:"Cruces en poleas (aislamiento pecho)", s:"3 series × 12-15 reps", reps:12, series:3, m:"Pecho (aislamiento)", log:true, inc:1.25, repsMax:15,
        d:"De pie entre dos poleas altas, un cable en cada mano. Con los codos ligeramente doblados y fijos, junta las manos al frente en un arco descendente, contrayendo el pecho. Regresa controlado.",
        t:"Aislamiento puro de pecho para cerrar la semana: sin fatigar hombro ni tríceps, solo el pectoral.",
        img:IMGS.polea, yt:"cruces poleas pecho tecnica correcta"}
@@ -373,27 +373,27 @@ const dias = [
        img:IMGS.cardio, yt:"activacion gluteos isquios antes de entrenar"}
     ]},
     {label:"Trabajo principal — 70 min", g:false, ej:[
-      {id:"vie_1", n:"Peso muerto rumano con mancuernas", s:"4 series × 8-10 reps", reps:8, series:4, m:"Isquiotibiales + glúteo", log:true,
+      {id:"vie_1", n:"Peso muerto rumano con mancuernas", s:"4 series × 8-10 reps", reps:8, series:4, m:"Isquiotibiales + glúteo", log:true, inc:3, repsMax:10,
        d:"De pie con una mancuerna en cada mano frente a los muslos. Con rodillas semiflexionadas y espalda recta, empuja la cadera hacia atrás bajando las mancuernas pegadas a las piernas hasta media espinilla. Sube apretando el glúteo.",
        t:"El movimiento es de cadera, no de rodillas. Protege tu espalda baja para la moto y estira los isquios en longitud larga.",
        img:IMGS.femoral, yt:"peso muerto rumano mancuernas tecnica correcta principiante"},
-      {id:"vie_2", n:"Curl femoral (sentado o acostado)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Isquiotibiales", log:true,
+      {id:"vie_2", n:"Curl femoral (sentado o acostado)", s:"3 series × 10-12 reps", reps:10, series:3, m:"Isquiotibiales", log:true, inc:2.5, repsMax:12,
        d:"Tobillos bajo el rodillo. Lleva los talones hacia los glúteos doblando las rodillas. Baja en 3 segundos.",
        t:"El femoral equilibra la fuerza del cuádriceps y protege la rodilla en los saltos y caídas del offroad.",
        img:IMGS.femoral, yt:"curl femoral maquina tecnica correcta"},
-      {id:"vie_3", n:"Sentadilla búlgara", s:"3 series × 10 reps c/pierna", reps:10, series:3, m:"Glúteo + cuádriceps + equilibrio", log:true,
+      {id:"vie_3", n:"Sentadilla búlgara", s:"3 series × 10 reps c/pierna", reps:10, series:3, m:"Glúteo + cuádriceps + equilibrio", log:true, inc:1.5, repsMax:10,
        d:"Pie trasero apoyado en un banco detrás de ti, pie delantero firme. Baja la rodilla trasera hacia el suelo manteniendo el torso erguido. Empuja con el talón delantero. Empieza sin peso; agrega mancuernas cuando domines 10 reps.",
        t:"El ejercicio unilateral más completo: equilibrio + fuerza + glúteo en un solo movimiento, transformador para el offroad.",
        img:IMGS.funcional, yt:"sentadilla bulgara tecnica correcta principiante"},
-      {id:"vie_4", n:"Elevación de talones sentado (sóleo)", s:"3 series × 15-20 reps", reps:15, series:3, m:"Pantorrillas (sóleo)", log:true,
+      {id:"vie_4", n:"Elevación de talones sentado (sóleo)", s:"3 series × 15-20 reps", reps:15, series:3, m:"Pantorrillas (sóleo)", log:true, inc:2.5, repsMax:20,
        d:"Sentado en la máquina de pantorrillas, rodilla flexionada a 90°. Sube en puntas lo más alto posible, sostén 1 segundo, baja controlado.",
        t:"Rodilla flexionada aísla el sóleo, complementando el gastrocnemio que ya trabajaste el miércoles con rodilla extendida.",
        img:IMGS.pierna, yt:"elevacion talones sentado soleo tecnica correcta"},
-      {id:"vie_5", n:"Hiperextensiones lumbares", s:"3 series × 12-15 reps", reps:12, series:3, m:"Lumbar", log:true,
+      {id:"vie_5", n:"Hiperextensiones lumbares", s:"3 series × 12-15 reps", reps:12, series:3, m:"Lumbar", log:true, inc:2.5, repsMax:15,
        d:"En el banco de hiperextensiones, muslos apoyados, pies asegurados. Baja el torso hacia el suelo y sube hasta quedar recto. No subas de más.",
        t:"Espalda baja fuerte = cero dolor después de un día largo en la moto.",
        img:IMGS.cardio, yt:"hiperextensiones lumbares banco tecnica correcta"},
-      {id:"vie_6", n:"Press Pallof o plancha (core/antirrotación)", s:"3 series × 12 reps c/lado", reps:12, series:3, m:"Core antirrotación", log:true,
+      {id:"vie_6", n:"Press Pallof o plancha (core/antirrotación)", s:"3 series × 12 reps c/lado", reps:12, series:3, m:"Core antirrotación", log:true, inc:1.25, repsMax:12,
        d:"De pie, perpendicular a la polea a la altura del pecho. Sujeta el agarre con ambas manos pegado al pecho. Extiende los brazos al frente resistiendo que la polea te gire el torso. Sostén 2 segundos, regresa.",
        t:"Cuando la moto patina o un bache te tuerce, el core antirrotación es lo que te mantiene arriba. Ningún abdominal tradicional entrena esto.",
        img:IMGS.polea, yt:"press pallof polea core antirrotacion tecnica"}
@@ -448,7 +448,7 @@ function toggleEx(id){
 
 /* ============ VISTA RUTINA ============ */
 /* ============ SEMÁFORO DE PROGRESIÓN ============ */
-const WEIGHT_STEP = 2.5;      // incremento sugerido en kg
+const WEIGHT_STEP = 2.5;      // incremento por defecto en kg (si el ejercicio no define uno propio)
 const SESIONES_CONFIRMACION = 2; // sesiones consecutivas exitosas requeridas antes de sugerir subir peso
 
 function sessionHitsTarget(entry, targetReps){
@@ -490,14 +490,34 @@ function progressionStatus(ex){
     };
   }
 
-  const nextW = (lastMaxW + WEIGHT_STEP);
+  const step = ex.inc || WEIGHT_STEP;
+  const nextW = (lastMaxW + step);
   const nextWtxt = (nextW % 1 === 0) ? nextW.toFixed(0) : nextW.toFixed(1);
+  const loR = Math.max(4, ex.reps-3), hiR = Math.max(loR+1, ex.reps-1);
   return {
     ready:true,
     last, confirmedCount,
-    suggestion:`Confirmado en ${confirmedCount} sesiones seguidas con ${lastMaxW} kg. Sube a ${nextWtxt} kg y baja a 8–10 repeticiones por serie.`,
-    short:`${nextWtxt} kg × 8–10`
+    suggestion:`Confirmado en ${confirmedCount} sesiones seguidas con ${lastMaxW} kg. Sube a ${nextWtxt} kg (+${step} kg) y baja a ${loR}–${hiR} repeticiones por serie.`,
+    short:`${nextWtxt} kg (+${step})`
   };
+}
+
+/* Señal temprana (complementaria) — "Regla del 2 por 2": la última serie supera
+   el límite superior del rango por 2+ reps en las 2 sesiones más recientes al mismo peso.
+   Es solo un aviso adicional: NO reemplaza ni acelera la regla oficial de arriba. */
+function earlySignalStatus(ex){
+  if(!ex.log || !ex.repsMax) return {signal:false};
+  const hist = logs[ex.id];
+  if(!hist || hist.length < 2) return {signal:false};
+  const umbral = ex.repsMax + 2;
+  const last = hist[hist.length-1];
+  const lastSet = last.sets[last.sets.length-1];
+  if(!lastSet || (lastSet.r||0) < umbral || (lastSet.w||0) <= 0) return {signal:false};
+  const w = lastSet.w;
+  const prev = hist[hist.length-2];
+  const prevSet = prev.sets[prev.sets.length-1];
+  const prevOk = prevSet && Math.abs((prevSet.w||0)-w) < 0.01 && (prevSet.r||0) >= umbral;
+  return { signal:true, confirmed:prevOk, umbral, w };
 }
 
 
@@ -517,6 +537,14 @@ function lastLogHtml(ex){
     html += `<div class="progress-alert">🔼 <b>¡Dominaste este peso!</b> ${st.suggestion}</div>`;
   } else if(st.pending){
     html += `<div class="progress-alert pending">⏳ <b>Casi listo.</b> ${st.pendingMsg}</div>`;
+  }
+  if(!st.ready){
+    const es = earlySignalStatus(ex);
+    if(es.signal){
+      html += es.confirmed
+        ? `<div class="progress-alert" style="background:rgba(121,192,255,.1);border-color:#79c0ff;color:#79c0ff">⚡ <b>Señal temprana confirmada.</b> Superaste ${es.umbral}+ reps en la última serie con ${es.w} kg en 2 sesiones seguidas (regla del documento). Aún falta que se cumpla tu regla oficial (todas las series) para que la app confirme el aumento.</div>`
+        : `<div class="progress-alert" style="background:rgba(121,192,255,.08);border-color:#79c0ff66;color:#79c0ff">⚡ Superaste ${es.umbral}+ reps en la última serie con ${es.w} kg — señal temprana, no oficial todavía.</div>`;
+    }
   }
   return html;
 }
@@ -880,6 +908,14 @@ function renderProgreso(){
       badge=`<span class="progress-badge pending">⏳ ${st.confirmedCount}/${SESIONES_CONFIRMACION}</span>`;
       badgeMsg=`<div class="progress-alert pending" style="margin-top:10px;margin-bottom:0">⏳ ${st.pendingMsg}</div>`;
     }
+    if(!st.ready){
+      const es = earlySignalStatus(e);
+      if(es.signal){
+        badgeMsg += es.confirmed
+          ? `<div class="progress-alert" style="margin-top:8px;margin-bottom:0;background:rgba(121,192,255,.1);border-color:#79c0ff;color:#79c0ff">⚡ Señal temprana confirmada: ${es.umbral}+ reps en la última serie con ${es.w} kg en 2 sesiones seguidas.</div>`
+          : `<div class="progress-alert" style="margin-top:8px;margin-bottom:0;background:rgba(121,192,255,.08);border-color:#79c0ff66;color:#79c0ff">⚡ Superaste ${es.umbral}+ reps en la última serie — señal temprana.</div>`;
+      }
+    }
     html+=`<div class="prog-ex-card" style="padding:14px 16px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px">
         <div class="prog-ex-name" style="margin-bottom:0">${e.n}${badge}</div>
@@ -925,7 +961,7 @@ function renderGuia(){
   </div>
   <div class="guide-card"><div class="guide-title">🎯 Volumen semanal (el sweet spot)</div><div class="guide-text">Cada grupo muscular recibe entre 8 y 12 series semanales, el rango óptimo para ganar músculo como novato. Glúteos reciben ~12 series (énfasis solicitado) repartidas entre martes y jueves con 48 horas de descanso entre ambas.</div></div>
   <div class="guide-card"><div class="guide-title">🔁 Descanso entre grupos musculares</div><div class="guide-text">El split está diseñado para que ningún músculo se trabaje sin al menos 48 horas de recuperación: empuje (lunes) → pierna A (martes) → jale (miércoles) → pierna B (jueves) → core/funcional (viernes). El músculo crece durante el descanso, no durante el entrenamiento.</div></div>
-  <div class="guide-card"><div class="guide-title">📝 Carga progresiva (la clave de todo)</div><div class="guide-text">Registra peso y repeticiones de CADA serie en la app. La regla: cuando completes todas las series con las reps objetivo en <b style="color:var(--accent2)">2 sesiones seguidas</b> con el mismo peso, sube 2.5 kg y baja a 8–10 reps la siguiente sesión. Exigir 2 sesiones confirma que dominaste el peso de verdad, no que tuviste un día excepcional. La app calcula esto automáticamente y te avisa con una etiqueta 🔼 cuando estés listo.</div></div>
+  <div class="guide-card"><div class="guide-title">📝 Carga progresiva (la clave de todo)</div><div class="guide-text">Registra peso y repeticiones de CADA serie en la app. La regla: cuando completes todas las series con las reps objetivo en <b style="color:var(--accent2)">2 sesiones seguidas</b> con el mismo peso, sube el peso y baja repeticiones la siguiente sesión. El incremento ya no es fijo: es específico por ejercicio (por ejemplo +5 kg en sentadilla, +1 kg en elevaciones laterales) según el tamaño del grupo muscular y la estabilidad del movimiento. Exigir 2 sesiones confirma que dominaste el peso de verdad, no que tuviste un día excepcional. La app calcula esto automáticamente y te avisa con una etiqueta 🔼 cuando estés listo — y con un aviso ⚡ si superas el rango por 2+ reps en la última serie, como señal temprana antes de la confirmación oficial.</div></div>
   <div class="guide-card"><div class="guide-title">💪 Esfuerzo real (cerca del fallo)</div><div class="guide-text">Tus 12 repeticiones deben terminar sintiendo que solo podrías hacer 2 más con buena técnica (RIR 2). Si terminas fresco, el peso es poco. Si tu técnica se rompe antes de la rep 10, es demasiado. El rango útil de hipertrofia va de 6 a 20 reps.</div></div>
   <div class="guide-card"><div class="guide-title">🏃 Cardio estratégico</div><div class="guide-text">Siempre al final, 10 minutos, intensidad moderada (puedes mantener una conversación). Antes de pesas robaría energía al trabajo muscular, que es tu prioridad absoluta para ganar músculo.</div></div>
   <div class="guide-card"><div class="guide-title">🏍️ Conexión offroad</div><div class="guide-text">Cada día incluye trabajo directamente transferible a la moto: agarre (curl martillo, farmer's walk), core antirrotación (press Pallof), equilibrio unilateral (búlgaras, zancadas) y resistencia postural (hip thrust, lumbares). En 8-12 semanas notarás menos fatiga de brazos, mejor control de pie en los estribos y recuperación más rápida entre rutas.</div></div>
